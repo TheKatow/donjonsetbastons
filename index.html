@@ -596,9 +596,9 @@ function openSpellCard() {
   if (typeof entity.spell === "object") {
     $("spellCardFront").src = "dos-carte.png";
     $("spellCardBack").src = "dos-carte.png";
-    const html = `<div class="spell-name">${entity.spell.name}</div><div class="spell-desc">${entity.spell.desc}</div>`;
-    ft.innerHTML = html;
-    bt.innerHTML = html;
+    const fmt = entity.spell.desc.split('\n\n').map(e => e.replace(/^[^—]*—\s*(.+?)\s*:\s*(.*)$/,'<br><strong>$1</strong> : $2')).join('');
+    ft.innerHTML = fmt;
+    bt.innerHTML = fmt;
     ft.classList.add("show");
     bt.classList.add("show");
   } else if (selectedMonster) {
