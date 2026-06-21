@@ -1,848 +1,1481 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<title>Bastons &amp; Donjons</title>
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#f5f0e8;--card-bg:#1a1a1a;--text:#fff;--text-dark:#333;--green:#4caf50;--red:#e53935;--blue:#2196f3;--gray:#616161;--dark-gray:#2c2c2c;--radius:12px}
-html,body{height:100%;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text-dark);-webkit-tap-highlight-color:transparent}
-.app{max-width:800px;margin:0 auto;height:100dvh;display:flex;flex-direction:column;background:#fff;box-shadow:0 0 20px rgba(0,0,0,.1);position:relative;overflow:hidden}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+  <title>Bastons &amp; Donjons</title>
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
 
-/* NAV */
-.nav{display:none;gap:4px;padding:6px;background:#fff;border-bottom:1px solid #e0e0e0;flex-shrink:0}
-.nav.visible{display:flex}
-.nav-btn{flex:1;padding:10px 4px;border:none;border-radius:8px;font-size:clamp(10px,3vw,14px);font-weight:700;cursor:pointer;transition:opacity .2s;text-align:center}
-.nav-btn:active{opacity:.7}
-.nav-btn.hero-btn{background:rgba(76,175,80,.5);color:#000}
-.nav-btn.monster-list-btn{background:rgba(229,57,53,.5);color:#000}
-.nav-btn.monster-detail-btn{background:rgba(33,150,243,.5);color:#000}
-.nav-btn.hidden{display:none}
+    :root {
+      --bg: #f5f0e8;
+      --card-bg: #1a1a1a;
+      --text: #fff;
+      --text-dark: #333;
+      --green: #4caf50;
+      --red: #e53935;
+      --blue: #2196f3;
+      --gray: #616161;
+      --dark-gray: #2c2c2c;
+      --radius: 12px
+    }
 
-/* SCREENS */
-.screen{display:none;flex:1;flex-direction:column;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
-.screen.active{display:flex}
+    html,
+    body {
+      height: 100%;
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text-dark);
+      -webkit-tap-highlight-color: transparent
+    }
 
-/* HERO SELECTION */
-.hero-grid{padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.hero-grid h2{padding:0 12px 12px;font-size:22px;grid-column:1/-1}
-.hero-card{background:var(--card-bg);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:transform .15s,box-shadow .15s;display:flex;flex-direction:column;position:relative;border:3px solid transparent}
-.hero-card:active{transform:scale(.97)}
-.hero-card.selected{border-color:var(--green);box-shadow:0 0 0 1px var(--green),0 4px 16px rgba(76,175,80,.35)}
-.hero-card.selected .hero-check{display:flex}
-.hero-card img{width:100%;aspect-ratio:1;object-fit:cover;display:block}
-.hero-card .name{padding:8px;color:#fff;font-size:14px;font-weight:700;text-align:center}
-.hero-check{display:none;position:absolute;top:6px;right:6px;width:26px;height:26px;border-radius:50%;background:var(--green);color:#fff;align-items:center;justify-content:center;font-size:16px;font-weight:900;box-shadow:0 2px 6px rgba(0,0,0,.3)}
-.hero-select-footer{padding:12px 16px 20px;display:flex;flex-direction:column;align-items:center;gap:12px;flex-shrink:0}
-.hero-select-count{font-size:15px;font-weight:700;color:var(--text-dark)}
-.hero-select-count .count-num{color:var(--green);font-size:18px}
-.hero-confirm-btn{background:var(--green);color:#fff;border:none;border-radius:var(--radius);padding:14px 48px;font-size:18px;font-weight:900;cursor:pointer;transition:opacity .2s;text-transform:uppercase;letter-spacing:2px;box-shadow:0 4px 16px rgba(76,175,80,.3);opacity:.4;pointer-events:none}
-.hero-confirm-btn.enabled{opacity:1;pointer-events:auto}
-.hero-confirm-btn.enabled:active{opacity:.8}
+    .app {
+      max-width: 800px;
+      margin: 0 auto;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      background: #fff;
+      box-shadow: 0 0 20px rgba(0, 0, 0, .1);
+      position: relative;
+      overflow: hidden
+    }
 
-/* LEVEL BADGE */
-.level-badge{display:flex;justify-content:center;padding:10px 0}
-.level-badge button{background:var(--dark-gray);color:#fff;border:none;border-radius:8px;padding:8px 24px;font-size:clamp(18px,5vw,26px);font-weight:900;cursor:pointer;transition:opacity .2s}
-.level-badge button:active{opacity:.7}
+    /* NAV */
+    .nav {
+      display: none;
+      gap: 4px;
+      padding: 6px;
+      background: #fff;
+      border-bottom: 1px solid #e0e0e0;
+      flex-shrink: 0
+    }
 
-/* CAROUSEL */
-.carousel{flex:1;min-height:0;position:relative;overflow:hidden;touch-action:pan-y}
-.carousel-stage{position:relative;width:100%;height:100%;overflow:hidden}
-.carousel-slide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:0 8%;will-change:transform,opacity}
-.carousel-slide img{max-width:100%;max-height:100%;object-fit:contain;user-select:none;-webkit-user-drag:none;pointer-events:none}
-.carousel-thumb{position:absolute;top:50%;transform:translateY(-50%);width:104px;height:136px;border-radius:12px;overflow:hidden;cursor:pointer;opacity:0;transition:opacity .25s;z-index:5;box-shadow:0 2px 10px rgba(0,0,0,.3);border:2px solid rgba(255,255,255,.25)}
-.carousel-thumb.visible{opacity:.65}
-.carousel-thumb:active{opacity:1;transform:translateY(-50%) scale(.93)}
-.carousel-thumb img{width:100%;height:100%;object-fit:cover;pointer-events:none}
-.carousel-thumb.left{left:4px}
-.carousel-thumb.right{right:4px}
-.spell-btn{position:absolute;bottom:8px;left:8px;padding:8px 20px;height:72px;min-width:112px;z-index:10;cursor:pointer;background:var(--dark-gray);color:#fff;border:2px solid rgba(255,255,255,.2);border-radius:8px;font-size:15px;font-weight:900;display:none;align-items:center;justify-content:center;transition:opacity .2s;letter-spacing:1px;white-space:nowrap}
-.spell-btn.visible{display:flex}
-.spell-btn.used{opacity:.4;cursor:default}
-.spell-btn.used:active{opacity:.4}
-.spell-btn:active{opacity:.7}
-.spell-overlay{position:absolute;inset:0;z-index:20;display:none;align-items:center;justify-content:center;padding:0 8% 80px;pointer-events:none}
-.spell-overlay.visible .spell-card{pointer-events:none}
-.spell-overlay.visible .spell-card-inner,.spell-overlay.visible .spell-card-face{pointer-events:none}
-.spell-overlay.visible .spell-card-face img{pointer-events:auto}
-.spell-overlay.visible{display:flex}
-.spell-card{width:80%;aspect-ratio:208/272;max-height:calc(100% - 96px);perspective:800px;cursor:pointer;transition:transform .4s ease-in}
-.spell-card-inner{position:relative;width:100%;height:100%;transition:transform .6s;transform-style:preserve-3d}
-.spell-card-inner.flipped{transform:rotateY(180deg)}
-.spell-card-face{position:absolute;inset:0;backface-visibility:hidden;border-radius:8px;overflow:hidden}
-.spell-card-face img{width:100%;height:100%;object-fit:contain;pointer-events:none}
-.spell-card-back{transform:rotateY(180deg)}
-.spell-card-text{position:absolute;inset:0;display:none;padding:4px 25%;color:#fff;font-size:clamp(18px,3.5vw,26px);overflow-y:auto;text-align:center;pointer-events:none;word-break:break-word;line-height:1.3}
-.spell-card-text.show{display:flex;flex-direction:column;align-items:center;gap:4px}
-.spell-card-text .spell-name{font-size:clamp(10px,2vw,14px);font-weight:900;color:#ffd700;text-transform:uppercase;letter-spacing:1px}
-.spell-card-text .spell-desc{font-size:clamp(8px,1.6vw,11px)}
-.spell-card-text .spell-desc{font-weight:400;color:rgba(255,255,255,.9)}
-.carousel-indicator{position:absolute;bottom:4px;left:50%;transform:translateX(-50%);display:flex;gap:5px;z-index:5}
-.carousel-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.35);transition:background .25s}
-.carousel-dot.active{background:var(--green);width:16px;border-radius:3px}
+    .nav.visible {
+      display: flex
+    }
 
-/* STATS BAR */
-.stats-bar{background:rgba(0,0,0,.85);padding:12px 8px 16px;position:relative;flex-shrink:0}
-.stats-row{display:flex;justify-content:space-evenly;align-items:flex-start}
-.stat{display:flex;flex-direction:column;align-items:center;min-width:60px}
-.stat .label{font-size:16px;font-weight:700;color:#bdbdbd;margin-bottom:2px}
-.stat .value{font-size:26px;font-weight:900;color:#fff}
-.stat-btn{width:32px;height:32px;border:none;border-radius:50%;font-size:18px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:opacity .2s;background:transparent;color:transparent;padding:0;line-height:1}
-.stat-btn.plus{color:var(--green)}
-.stat-btn.minus{color:var(--red)}
-.stat-btn:disabled{opacity:0;pointer-events:none}
-.stat-btn:active{opacity:.5}
+    .nav-btn {
+      flex: 1;
+      padding: 10px 4px;
+      border: none;
+      border-radius: 8px;
+      font-size: clamp(10px, 3vw, 14px);
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity .2s;
+      text-align: center
+    }
 
-/* FLOATING COUNTER */
-.floating-counter{position:absolute;top:-8px;left:50%;transform:translateX(-50%);padding:4px 14px;border-radius:8px;font-size:24px;font-weight:900;color:#fff;z-index:10;display:none;box-shadow:0 4px 20px rgba(0,0,0,.3);pointer-events:none}
-.floating-counter.show{display:block}
+    .nav-btn:active {
+      opacity: .7
+    }
 
-/* MONSTER GRID */
-.monster-grid{padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.monster-grid .level-header{grid-column:1/-1;text-align:center;padding:10px 0}
-.monster-grid .level-header button{background:var(--dark-gray);color:#fff;border:none;border-radius:8px;padding:8px 24px;font-size:clamp(18px,5vw,26px);font-weight:900}
-.monster-card{background:var(--dark-gray);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:transform .15s;display:flex;flex-direction:column}
-.monster-card:active{transform:scale(.97)}
-.monster-card img{width:100%;aspect-ratio:1;object-fit:cover;display:block}
-.monster-card .name{padding:8px;color:#fff;font-size:14px;font-weight:700;text-align:center}
+    .nav-btn.hero-btn {
+      background: rgba(76, 175, 80, .5);
+      color: #000
+    }
 
-/* HOME SCREEN */
-.home-container{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:40px 20px;gap:32px}
-.home-logo{width:clamp(240px,80vw,480px);aspect-ratio:1;object-fit:contain;filter:drop-shadow(0 6px 20px rgba(0,0,0,.2))}
-.home-config{display:flex;flex-direction:column;align-items:center;gap:8px}
-.home-config-label{font-size:14px;font-weight:700;color:var(--text-dark);text-transform:uppercase;letter-spacing:1px}
-.home-config-row{display:flex;align-items:center;gap:16px;background:var(--dark-gray);border-radius:var(--radius);padding:8px 16px}
-.home-config-value{color:#fff;font-size:28px;font-weight:900;min-width:40px;text-align:center}
-.home-config-arrow{width:40px;height:40px;border:none;border-radius:50%;font-size:22px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:opacity .2s;background:rgba(255,255,255,.15);color:#fff;padding:0;line-height:1}
-.home-config-arrow:active{opacity:.5}
-.home-start-btn{background:var(--green);color:#fff;border:none;border-radius:var(--radius);padding:16px 56px;font-size:clamp(18px,4vw,24px);font-weight:900;cursor:pointer;transition:opacity .2s;text-transform:uppercase;letter-spacing:2px;box-shadow:0 4px 16px rgba(76,175,80,.3)}
-.home-start-btn:active{opacity:.8}
+    .nav-btn.monster-list-btn {
+      background: rgba(229, 57, 53, .5);
+      color: #000
+    }
 
-@media(min-width:600px){
-  .hero-grid{grid-template-columns:repeat(4,1fr);gap:16px;padding:16px}
-  .monster-grid{grid-template-columns:repeat(4,1fr);gap:12px;padding:16px}
-  .stat{min-width:80px}
-  .stat .value{font-size:32px}
-}
-</style>
+    .nav-btn.monster-detail-btn {
+      background: rgba(33, 150, 243, .5);
+      color: #000
+    }
+
+    .nav-btn.hidden {
+      display: none
+    }
+
+    /* SCREENS */
+    .screen {
+      display: none;
+      flex: 1;
+      flex-direction: column;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch
+    }
+
+    .screen.active {
+      display: flex
+    }
+
+    /* HERO SELECTION */
+    .hero-grid {
+      padding: 12px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px
+    }
+
+    .hero-grid h2 {
+      padding: 0 12px 12px;
+      font-size: 22px;
+      grid-column: 1/-1
+    }
+
+    .hero-card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform .15s, box-shadow .15s;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      border: 3px solid transparent
+    }
+
+    .hero-card:active {
+      transform: scale(.97)
+    }
+
+    .hero-card.selected {
+      border-color: var(--green);
+      box-shadow: 0 0 0 1px var(--green), 0 4px 16px rgba(76, 175, 80, .35)
+    }
+
+    .hero-card.selected .hero-check {
+      display: flex
+    }
+
+    .hero-card img {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+      display: block
+    }
+
+    .hero-card .name {
+      padding: 8px;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      text-align: center
+    }
+
+    .hero-check {
+      display: none;
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--green);
+      color: #fff;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 900;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, .3)
+    }
+
+    .hero-select-footer {
+      padding: 12px 16px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0
+    }
+
+    .hero-select-count {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-dark)
+    }
+
+    .hero-select-count .count-num {
+      color: var(--green);
+      font-size: 18px
+    }
+
+    .hero-confirm-btn {
+      background: var(--green);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      padding: 14px 48px;
+      font-size: 18px;
+      font-weight: 900;
+      cursor: pointer;
+      transition: opacity .2s;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      box-shadow: 0 4px 16px rgba(76, 175, 80, .3);
+      opacity: .4;
+      pointer-events: none
+    }
+
+    .hero-confirm-btn.enabled {
+      opacity: 1;
+      pointer-events: auto
+    }
+
+    .hero-confirm-btn.enabled:active {
+      opacity: .8
+    }
+
+    /* LEVEL BADGE */
+    .level-badge {
+      display: flex;
+      justify-content: center;
+      padding: 10px 0
+    }
+
+    .level-badge button {
+      background: var(--dark-gray);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 24px;
+      font-size: clamp(18px, 5vw, 26px);
+      font-weight: 900;
+      cursor: pointer;
+      transition: opacity .2s
+    }
+
+    .level-badge button:active {
+      opacity: .7
+    }
+
+    /* CAROUSEL */
+    .carousel {
+      flex: 1;
+      min-height: 0;
+      position: relative;
+      overflow: hidden;
+      touch-action: pan-y
+    }
+
+    .carousel-stage {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden
+    }
+
+    .carousel-slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 8%;
+      will-change: transform, opacity
+    }
+
+    .carousel-slide img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      user-select: none;
+      -webkit-user-drag: none;
+      pointer-events: none
+    }
+
+    .carousel-thumb {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 104px;
+      height: 136px;
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity .25s;
+      z-index: 5;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, .3);
+      border: 2px solid rgba(255, 255, 255, .25)
+    }
+
+    .carousel-thumb.visible {
+      opacity: .65
+    }
+
+    .carousel-thumb:active {
+      opacity: 1;
+      transform: translateY(-50%) scale(.93)
+    }
+
+    .carousel-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      pointer-events: none
+    }
+
+    .carousel-thumb.left {
+      left: 4px
+    }
+
+    .carousel-thumb.right {
+      right: 4px
+    }
+
+    .spell-btn {
+      position: absolute;
+      bottom: 8px;
+      left: 8px;
+      padding: 8px 20px;
+      height: 72px;
+      min-width: 112px;
+      z-index: 10;
+      cursor: pointer;
+      background: var(--dark-gray);
+      color: #fff;
+      border: 2px solid rgba(255, 255, 255, .2);
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 900;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      transition: opacity .2s;
+      letter-spacing: 1px;
+      white-space: nowrap
+    }
+
+    .spell-btn.visible {
+      display: flex
+    }
+
+    .spell-btn.used {
+      opacity: .4;
+      cursor: default
+    }
+
+    .spell-btn.used:active {
+      opacity: .4
+    }
+
+    .spell-btn:active {
+      opacity: .7
+    }
+
+    .spell-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 20;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 0 8% 80px;
+      pointer-events: none
+    }
+
+    .spell-overlay.visible .spell-card {
+      pointer-events: none
+    }
+
+    .spell-overlay.visible .spell-card-inner,
+    .spell-overlay.visible .spell-card-face {
+      pointer-events: none
+    }
+
+    .spell-overlay.visible .spell-card-face img {
+      pointer-events: auto
+    }
+
+    .spell-overlay.visible {
+      display: flex
+    }
+
+    .spell-card {
+      width: 80%;
+      aspect-ratio: 208/272;
+      max-height: calc(100% - 96px);
+      perspective: 800px;
+      cursor: pointer;
+      transition: transform .4s ease-in
+    }
+
+    .spell-card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transition: transform .6s;
+      transform-style: preserve-3d
+    }
+
+    .spell-card-inner.flipped {
+      transform: rotateY(180deg)
+    }
+
+    .spell-card-face {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      border-radius: 8px;
+      overflow: hidden
+    }
+
+    .spell-card-face img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      pointer-events: none
+    }
+
+    .spell-card-back {
+      transform: rotateY(180deg)
+    }
+
+    .spell-card-text {
+      position: absolute;
+      inset: 0;
+      display: none;
+      padding: 4px 25%;
+      color: #fff;
+      font-size: clamp(18px, 3.5vw, 26px);
+      overflow-y: auto;
+      text-align: center;
+      pointer-events: none;
+      word-break: break-word;
+      line-height: 1.3
+    }
+
+    .spell-card-text.show {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px
+    }
+
+    .spell-card-text .spell-name {
+      font-size: clamp(10px, 2vw, 14px);
+      font-weight: 900;
+      color: #ffd700;
+      text-transform: uppercase;
+      letter-spacing: 1px
+    }
+
+    .spell-card-text .spell-desc {
+      font-size: clamp(8px, 1.6vw, 11px)
+    }
+
+    .spell-card-text .spell-desc {
+      font-weight: 400;
+      color: rgba(255, 255, 255, .9)
+    }
+
+    @media (max-width: 600px) {
+      .spell-card-text { padding: 4px 6% }
+    }
+
+    .carousel-indicator {
+      position: absolute;
+      bottom: 4px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 5px;
+      z-index: 5
+    }
+
+    .carousel-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .35);
+      transition: background .25s
+    }
+
+    .carousel-dot.active {
+      background: var(--green);
+      width: 16px;
+      border-radius: 3px
+    }
+
+    /* STATS BAR */
+    .stats-bar {
+      background: rgba(0, 0, 0, .85);
+      padding: 12px 8px 16px;
+      position: relative;
+      flex-shrink: 0
+    }
+
+    .stats-row {
+      display: flex;
+      justify-content: space-evenly;
+      align-items: flex-start
+    }
+
+    .stat {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 60px
+    }
+
+    .stat .label {
+      font-size: 16px;
+      font-weight: 700;
+      color: #bdbdbd;
+      margin-bottom: 2px
+    }
+
+    .stat .value {
+      font-size: 26px;
+      font-weight: 900;
+      color: #fff
+    }
+
+    .stat-btn {
+      width: 32px;
+      height: 32px;
+      border: none;
+      border-radius: 50%;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity .2s;
+      background: transparent;
+      color: transparent;
+      padding: 0;
+      line-height: 1
+    }
+
+    .stat-btn.plus {
+      color: var(--green)
+    }
+
+    .stat-btn.minus {
+      color: var(--red)
+    }
+
+    .stat-btn:disabled {
+      opacity: 0;
+      pointer-events: none
+    }
+
+    .stat-btn:active {
+      opacity: .5
+    }
+
+    /* FLOATING COUNTER */
+    .floating-counter {
+      position: absolute;
+      top: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 4px 14px;
+      border-radius: 8px;
+      font-size: 24px;
+      font-weight: 900;
+      color: #fff;
+      z-index: 10;
+      display: none;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, .3);
+      pointer-events: none
+    }
+
+    .floating-counter.show {
+      display: block
+    }
+
+    /* MONSTER GRID */
+    .monster-grid {
+      padding: 12px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px
+    }
+
+    .monster-grid .level-header {
+      grid-column: 1/-1;
+      text-align: center;
+      padding: 10px 0
+    }
+
+    .monster-grid .level-header button {
+      background: var(--dark-gray);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 24px;
+      font-size: clamp(18px, 5vw, 26px);
+      font-weight: 900
+    }
+
+    .monster-card {
+      background: var(--dark-gray);
+      border-radius: var(--radius);
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform .15s;
+      display: flex;
+      flex-direction: column
+    }
+
+    .monster-card:active {
+      transform: scale(.97)
+    }
+
+    .monster-card img {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+      display: block
+    }
+
+    .monster-card .name {
+      padding: 8px;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      text-align: center
+    }
+
+    /* HOME SCREEN */
+    .home-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      padding: 40px 20px;
+      gap: 32px
+    }
+
+    .home-logo {
+      width: clamp(240px, 80vw, 480px);
+      aspect-ratio: 1;
+      object-fit: contain;
+      filter: drop-shadow(0 6px 20px rgba(0, 0, 0, .2))
+    }
+
+    .home-config {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px
+    }
+
+    .home-config-label {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-dark);
+      text-transform: uppercase;
+      letter-spacing: 1px
+    }
+
+    .home-config-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: var(--dark-gray);
+      border-radius: var(--radius);
+      padding: 8px 16px
+    }
+
+    .home-config-value {
+      color: #fff;
+      font-size: 28px;
+      font-weight: 900;
+      min-width: 40px;
+      text-align: center
+    }
+
+    .home-config-arrow {
+      width: 40px;
+      height: 40px;
+      border: none;
+      border-radius: 50%;
+      font-size: 22px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity .2s;
+      background: rgba(255, 255, 255, .15);
+      color: #fff;
+      padding: 0;
+      line-height: 1
+    }
+
+    .home-config-arrow:active {
+      opacity: .5
+    }
+
+    .home-start-btn {
+      background: var(--green);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      padding: 16px 56px;
+      font-size: clamp(18px, 4vw, 24px);
+      font-weight: 900;
+      cursor: pointer;
+      transition: opacity .2s;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      box-shadow: 0 4px 16px rgba(76, 175, 80, .3)
+    }
+
+    .home-start-btn:active {
+      opacity: .8
+    }
+
+    @media(min-width:600px) {
+      .hero-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        padding: 16px
+      }
+
+      .monster-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        padding: 16px
+      }
+
+      .stat {
+        min-width: 80px
+      }
+
+      .stat .value {
+        font-size: 32px
+      }
+    }
+  </style>
 </head>
+
 <body>
-<div class="app" id="app">
-  <nav class="nav" id="nav">
-    <button class="nav-btn hero-btn" data-screen="HERO">HÉRO</button>
-    <button class="nav-btn monster-list-btn" data-screen="MONSTER_LIST">MONSTRES</button>
-    <button class="nav-btn monster-detail-btn hidden" data-screen="MONSTER_DETAIL">MONSTRE</button>
-  </nav>
+  <div class="app" id="app">
+    <nav class="nav" id="nav">
+      <button class="nav-btn hero-btn" data-screen="HERO">HÉRO</button>
+      <button class="nav-btn monster-list-btn" data-screen="MONSTER_LIST">MONSTRES</button>
+      <button class="nav-btn monster-detail-btn hidden" data-screen="MONSTER_DETAIL">MONSTRE</button>
+    </nav>
 
-  <!-- HOME SCREEN -->
-  <div class="screen active" id="screen-home">
-    <div class="home-container">
-      <img class="home-logo" src="logo.png" alt="Donjons &amp; Bastons">
-      <div class="home-config">
-        <div class="home-config-label">Nombre de héros</div>
-        <div class="home-config-row">
-          <button class="home-config-arrow" id="heroMinus">−</button>
-          <div class="home-config-value" id="heroCountDisplay">1</div>
-          <button class="home-config-arrow" id="heroPlus">+</button>
+    <!-- HOME SCREEN -->
+    <div class="screen active" id="screen-home">
+      <div class="home-container">
+        <img class="home-logo" src="logo.png" alt="Donjons &amp; Bastons">
+        <div class="home-config">
+          <div class="home-config-label">Nombre de héros</div>
+          <div class="home-config-row">
+            <button class="home-config-arrow" id="heroMinus">−</button>
+            <div class="home-config-value" id="heroCountDisplay">1</div>
+            <button class="home-config-arrow" id="heroPlus">+</button>
+          </div>
         </div>
+        <button class="home-start-btn" id="startBtn">DÉMARRER</button>
       </div>
-      <button class="home-start-btn" id="startBtn">DÉMARRER</button>
     </div>
-  </div>
 
-  <!-- HERO SELECTION -->
-  <div class="screen" id="screen-hero-select">
-    <div class="hero-grid" id="heroGrid"></div>
-    <div class="hero-select-footer" id="heroSelectFooter">
-      <div class="hero-select-count" id="heroSelectCount">0/<span class="count-num" id="heroSelectMax">1</span> sélectionnés</div>
-      <button class="hero-confirm-btn" id="heroConfirmBtn">CONFIRMER</button>
-    </div>
-  </div>
-
-  <!-- MAIN APP -->
-  <div class="screen" id="screen-main">
-    <div class="level-badge">
-      <button id="levelBtn">NIVEAU 1</button>
-    </div>
-    <div class="carousel" id="carousel">
-      <div class="carousel-stage" id="carouselStage">
-        <div class="carousel-slide" id="slideA"></div>
-        <div class="carousel-slide" id="slideB"></div>
+    <!-- HERO SELECTION -->
+    <div class="screen" id="screen-hero-select">
+      <div class="hero-grid" id="heroGrid"></div>
+      <div class="hero-select-footer" id="heroSelectFooter">
+        <div class="hero-select-count" id="heroSelectCount">0/<span class="count-num" id="heroSelectMax">1</span>
+          sélectionnés</div>
+        <button class="hero-confirm-btn" id="heroConfirmBtn">CONFIRMER</button>
       </div>
-      <div class="carousel-thumb left" id="ctPrev"></div>
-      <div class="carousel-thumb right" id="ctNext"></div>
-      <div class="carousel-indicator" id="carouselDots"></div>
-      <button class="spell-btn" id="spellBtn">POUVOIR</button>
-      <div class="spell-overlay" id="spellOverlay">
-        <div class="spell-card" id="spellCard">
-          <div class="spell-card-inner" id="spellCardInner">
-            <div class="spell-card-face spell-card-front">
-              <img id="spellCardFront" src="" alt="">
-              <div class="spell-card-text" id="spellFrontText"></div>
-            </div>
-            <div class="spell-card-face spell-card-back">
-              <img id="spellCardBack" src="" alt="">
-              <div class="spell-card-text" id="spellBackText"></div>
+    </div>
+
+    <!-- MAIN APP -->
+    <div class="screen" id="screen-main">
+      <div class="level-badge">
+        <button id="levelBtn">NIVEAU 1</button>
+      </div>
+      <div class="carousel" id="carousel">
+        <div class="carousel-stage" id="carouselStage">
+          <div class="carousel-slide" id="slideA"></div>
+          <div class="carousel-slide" id="slideB"></div>
+        </div>
+        <div class="carousel-thumb left" id="ctPrev"></div>
+        <div class="carousel-thumb right" id="ctNext"></div>
+        <div class="carousel-indicator" id="carouselDots"></div>
+        <button class="spell-btn" id="spellBtn">POUVOIR</button>
+        <div class="spell-overlay" id="spellOverlay">
+          <div class="spell-card" id="spellCard">
+            <div class="spell-card-inner" id="spellCardInner">
+              <div class="spell-card-face spell-card-front">
+                <img id="spellCardFront" src="" alt="">
+                <div class="spell-card-text" id="spellFrontText"></div>
+              </div>
+              <div class="spell-card-face spell-card-back">
+                <img id="spellCardBack" src="" alt="">
+                <div class="spell-card-text" id="spellBackText"></div>
+              </div>
             </div>
           </div>
         </div>
       </div>
+      <div class="stats-bar" id="statsBar">
+        <div class="stats-row" id="statsRow"></div>
+        <div class="floating-counter" id="floatingCounter"></div>
+      </div>
     </div>
-    <div class="stats-bar" id="statsBar">
-      <div class="stats-row" id="statsRow"></div>
-      <div class="floating-counter" id="floatingCounter"></div>
+
+    <!-- MONSTER LIST -->
+    <div class="screen" id="screen-monster-list">
+      <div class="monster-grid" id="monsterGrid"></div>
     </div>
   </div>
 
-  <!-- MONSTER LIST -->
-  <div class="screen" id="screen-monster-list">
-    <div class="monster-grid" id="monsterGrid"></div>
-  </div>
-</div>
+  <script>
+    // DATA
+    const heroData = [
+      { name: "Paladin", img: "paladin.png", hp: 8, ca: 11, cha: 0, str: 1, spell: "sacrifice" },
+      { name: "Guerrier", img: "guerrier.png", hp: 7, ca: 10, cha: 0, str: 2, spell: "secon souffle" },
+      { name: "Clerc", img: "clerc.png", hp: 6, ca: 9, cha: 2, str: 1, spell: "lueur espoir" },
+      { name: "Barbare", img: "barbare.png", hp: 6, ca: 7, cha: 0, str: 3, spell: "rage" },
+      { name: "Voleur", img: "voleur.png", hp: 7, ca: 8, cha: 1, str: 2, spell: "tour de passepasse" },
+      { name: "Rodeur", img: "rodeur.png", hp: 5, ca: 9, cha: 1, str: 2, spell: "fleche percante" },
+      { name: "Barde", img: "barde.png", hp: 4, ca: 8, cha: 2, str: 2, spell: "rappel" },
+      { name: "Mage", img: "mage.png", hp: 4, ca: 8, cha: 2, str: 3, spell: "bouclier mana" }
+    ];
 
-<script>
-// DATA
-const heroData = [
-  {name:"Paladin",img:"paladin.png",hp:8,ca:11,cha:0,str:1,spell:"sacrifice"},
-  {name:"Guerrier",img:"guerrier.png",hp:7,ca:10,cha:0,str:2,spell:"secon souffle"},
-  {name:"Clerc",img:"clerc.png",hp:6,ca:9,cha:2,str:1,spell:"lueur espoir"},
-  {name:"Barbare",img:"barbare.png",hp:6,ca:7,cha:0,str:3,spell:"rage"},
-  {name:"Voleur",img:"voleur.png",hp:7,ca:8,cha:1,str:2,spell:"tour de passepasse"},
-  {name:"Rodeur",img:"rodeur.png",hp:5,ca:9,cha:1,str:2,spell:"fleche percante"},
-  {name:"Barde",img:"barde.png",hp:4,ca:8,cha:2,str:2,spell:"rappel"},
-  {name:"Mage",img:"mage.png",hp:4,ca:8,cha:2,str:3,spell:"bouclier mana"}
-];
+    const monsterData = [
+      { name: "Crabe de vase", img: "crabe.png", hp: 7, ca: 8, str: 1, level: 1 },
+      { name: "Gélatine", img: "gelatine.png", hp: 8, ca: 6, str: 2, level: 1 },
+      { name: "Gobelin", img: "gobelin.png", hp: 7, ca: 9, str: 2, level: 1 },
+      { name: "Kobold", img: "kobold.png", hp: 7, ca: 9, str: 2, level: 1 },
+      { name: "Lutin", img: "lutin.png", hp: 7, ca: 8, str: 1, level: 1 },
+      { name: "Squelette", img: "squelette.png", hp: 8, ca: 6, str: 2, level: 1 },
+      { name: "Bébé dragon", img: "logo.png", hp: 5, ca: 14, str: 1, level: 1 },
+      { name: "Bébé élementaire", img: "logo.png", hp: 5, ca: 14, str: 1, level: 1 },
+      { name: "Bandit", img: "logo.png", hp: 10, ca: 5, str: 2, level: 1 },
+      { name: "Loup", img: "logo.png", hp: 10, ca: 5, str: 2, level: 1 },
+      { name: "Orc", img: "orc.png", hp: 15, ca: 11, str: 2, level: 2, spell: { name: "Fureur / Cri de Bataille", desc: "Fureur Ininterrompue : si l'Orc réussit sa riposte et touche le héros, sa rage décuple. Il gagne +1 FOR pour le reste du combat (cumulable jusqu'à +3).<br>Cri de Bataille Sauvage : lorsque l'Orc entre en combat, il pousse un hurlement terrifiant. Le premier héros à l'attaquer soustrait sa propre CHA à son premier jet de dé." } },
+      { name: "Zombie", img: "zombie.png", hp: 15, ca: 11, str: 2, level: 2, spell: { name: "Robustesse / Poison", desc: "Robustesse Mort-Vivante : la première fois que les dégâts d'un héros doivent réduire les PV du Zombie à 0, le Zombie lance un D20. Sur 10 ou plus, il survit et reste à 1 PV.<br>Poison de Cadavre : si le Zombie touche le héros, celui-ci subit Poison et perd 2 PV au début de chacun de ses tours tant qu'il n'a pas été soigné." } },
+      { name: "Hobgobelin", img: "hobgobelin.png", hp: 20, ca: 10, str: 3, level: 2, spell: "dos-carte" },
+      { name: "Epouvantail", img: "epouvantail.png", hp: 18, ca: 11, str: 2, level: 2, spell: { name: "Regard / Griffes", desc: "Regard Terrifiant : l'Épouvantail irradie une aura de malaise. Tout héros qui l'attaque pour la première fois ignore son bonus de CHA pour ce jet.<br>Griffes de Terreur : s'il touche un héros sur une riposte, la cible subit les dégâts et voit sa FOR réduite de 1 pour son prochain tour." } },
+      { name: "Lézard géant", img: "lezard.png", hp: 16, ca: 10, str: 3, level: 2, spell: { name: "Morsure / Peau Épaisse", desc: "Morsure Agrippante : si le Lézard Géant touche le héros, il le maintient entre ses mâchoires. Tant que le héros est agrippé, le monstre gagne +2 CA contre lui tant que le héros n'a pas réussi un jet pour se libérer.<br>Peau Épaisse : au début du combat, le Lézard Géant durcit ses écailles. La première attaque du héros qui réussit voit ses dégâts réduits de moitié (arrondi à l'inférieur)." } },
+      { name: "Goule", img: "goule.png", hp: 16, ca: 10, str: 3, level: 2, spell: { name: "Putréfaction / Paralysie", desc: "Odeur de Putréfaction : l'odeur de cadavre donne la nausée. Tous les héros qui attaquent la Goule subissent -1 à leur CHA pour toucher.<br>Griffes de Paralysie : si la Goule touche le héros, le venin nécrotique fige ses muscles. Le héros est Paralysé : au début de son prochain tour, il lance un D20. S'il fait moins de 10, il passe son tour et la Goule l'attaque immédiatement sans lancer de dé." } },
+      { name: "Gnoll", img: "gnoll.png", hp: 20, ca: 10, str: 3, level: 2, spell: "dos-carte" },
+      { name: "Gelée Royale", img: "geleeroyale.png", hp: 18, ca: 11, str: 2, level: 2, spell: { name: "Amorphe / Acide", desc: "Corps Amorphe : les équipements ne comptent pas face à cette créature.<br>Toucher Acide : si la Gelée Royale touche un héros, elle laisse un résidu acide. Le héros subit le statut Acide et perd 2 PV au début de chacun de ses tours jusqu'à la fin du combat." } },
+      { name: "Ours-Hibou", img: "ourshibou.png", hp: 25, ca: 11, str: 4, level: 3, spell: { name: "Étreinte / Cri", desc: "Étreinte de l'Ours : si le monstre réussit sa riposte, il broie le héros dans ses pattes. Le héros subit 4 dégâts de FOR. Au tour suivant, ce héros est obligé d'attaquer ce monstre (impossible de changer de cible ou d'utiliser un objet).<br>Cri Perçant : au début du combat, l'Ours-Hibou pousse un hululement strident. Tous les héros perdent temporairement leur bonus de CHA pour l'intégralité du premier tour." } },
+      { name: "Gargouille", img: "gargouille.png", hp: 22, ca: 12, str: 3, level: 3, spell: { name: "Granit / Plongeon", desc: "Griffes de Granit : si la Gargouille touche sur une riposte, elle inflige ses 3 dégâts réglementaires +1 dégât perforant si la CA du héros est inférieure à 9.<br>Plongeon Destructeur : au premier tour du combat, la Gargouille fond du plafond. Le premier héros à l'attaquer subit -2 sur son D20 pour toucher." } },
+      { name: "Loup-garou", img: "loupgarou.png", hp: 22, ca: 12, str: 3, level: 3, spell: { name: "Régénération / Lycanthropie", desc: "Régénération Lunaire : au début de chaque tour de table, le Loup-Garou récupère 2 PV.<br>Malédiction de la Lycanthropie : si le Loup-Garou touche un héros, il le mord. Le héros infecté perd 1 PV par tour. S'il n'est pas soigné avant la fin de la partie, il ne pourra pas récupérer ses PV max entre les niveaux." } },
+      { name: "Elite", img: "elite.png", hp: 23, ca: 12, str: 3, level: 3, spell: "dos-carte" },
+      { name: "Minotaure", img: "minotaure.png", hp: 23, ca: 12, str: 3, level: 3, spell: { name: "Charge / Balayage", desc: "Charge Cornue : lorsque le héros rate son attaque avec un score de 1 à 5, le Minotaure baisse la tête et charge. Le héros subit 3 dégâts et est projeté : -2 à sa CA jusqu'à son prochain tour.<br>Balayage de Hache : sur une riposte réussie, le joueur ciblé subit 3 dégâts, et le joueur assis immédiatement à sa gauche subit 1 dégât de zone." } },
+      { name: "Bugbear", img: "bugbear.png", hp: 25, ca: 11, str: 4, level: 3, spell: "dos-carte" },
+      { name: "Automate", img: "automate.png", hp: 32, ca: 12, str: 6, level: 4, spell: { name: "Blindage / Surcharge", desc: "Blindage de Plaque : sa structure le rend difficile à cadrer. Les héros subissent un malus permanent de -1 à leur CHA lorsqu'ils tentent de le toucher.<br>Surcharge de Noyau : à sa mort, l'Automate explose. Tous les joueurs lancent un D20. Ceux qui font moins de 10 subissent 3 dégâts fixes." } },
+      { name: "Wyverne", img: "wyvern.png", hp: 32, ca: 12, str: 6, level: 4, spell: "dos-carte" },
+      { name: "Ent", img: "ent.png", hp: 31, ca: 12, str: 6, level: 4, spell: { name: "Rappel de la Terre", desc: "Rappel de la Terre : au début de chaque tour de table, l'Ent puise dans le sol et récupère 3 PV." } },
+      { name: "Chef Squelette", img: "chefsquelette.png", hp: 31, ca: 12, str: 6, level: 4, spell: { name: "Commandement / Armure", desc: "Enracinement : si un héros rate son attaque, des racines sortent du sol (ou des gardes squelettes l'encerclent). Le héros subit 6 dégâts de FOR et ne pourra pas lancer de dés au prochain tour.<br>Armure de Maître : chaque attaque réussie d'un héros inflige 1 point de dégât de moins que sa FOR normale." } },
+      { name: "Manticore", img: "manticore.png", hp: 32, ca: 13, str: 5, level: 4, spell: { name: "Pointes / Souffle", desc: "Pluie de Pointes : si un héros rate son attaque, le monstre inflige ses 5 dégâts de FOR, mais inflige 2 dégâts à tous les héros.<br>Souffle de Feu : lorsque le héros obtient un 1 naturel sur son D20, la Chimère l'immerge sous un torrent de flammes. Le héros subit 3 fois les dégâts." } },
+      { name: "Chimère", img: "chimere.png", hp: 32, ca: 13, str: 5, level: 4, spell: { name: "Pointes / Souffle", desc: "Pluie de Pointes : si un héros rate son attaque, le monstre inflige ses 5 dégâts de FOR, mais inflige 2 dégâts à tous les héros.<br>Souffle de Feu : lorsque le héros obtient un 1 naturel sur son D20, la Chimère l'immerge sous un torrent de flammes. Le héros subit 3 fois les dégâts." } },
+      { name: "Dragon Rouge", img: "dragon.png", hp: 50, ca: 14, str: 7, level: 5, spell: { name: "Présence Terrifiante", desc: "Présence Terrifiante : face au Boss, la peur paralyse les cœurs. Tous les héros subissent un malus permanent de -1 CHA et -1 CA pendant toute la durée de l'affrontement final." } },
+      { name: "Kraken", img: "kraken.png", hp: 50, ca: 14, str: 7, level: 5, spell: { name: "Légendaire Riposte", desc: "Légendaire Riposte : le Boss est si rapide que si deux héros d'affilée ratent leur jet de dé, le deuxième raté déclenche une attaque automatique sur le troisième héros." } },
+      { name: "Hydre", img: "hydre.png", hp: 50, ca: 14, str: 7, level: 5, spell: { name: "Philtre d'Immortalité", desc: "Philtre d'Immortalité : la première fois que le Boss atteint 0 PV, il ne meurt pas immédiatement. Il aspire l'énergie de la pièce, inflige 2 dégâts à tous les héros, et revient à la vie avec 10 PV. Les héros doivent lui porter un dernier coup fatal." } },
+      { name: "Archidémon", img: "archidome.png", hp: 50, ca: 14, str: 7, level: 5, spell: { name: "Têtes / Aura de Mort", desc: "Multiplication des Têtes : plus on le blesse, plus il devient dangereux. Tant que le Boss a plus de 25 PV, il inflige 7 dégâts de FOR. Dès qu'il tombe sous la barre des 25 PV, sa FOR passe à 9 dégâts par riposte réussie." } },
+      { name: "Liche", img: "liche.png", hp: 50, ca: 14, str: 7, level: 5, spell: { name: "Regard de Mort", desc: "Regard de Mort : si le Boss réussit une riposte contre un héros, il le marque du sceau de la mort. Le héros est Maudit : il perd 3 PV au début de chacun de ses tours. Les capacités de soin sur ce héros sont divisées par deux." } },
+      { name: "Chef Orc", img: "cheforc.png", hp: 50, ca: 14, str: 7, level: 5, spell: { name: "Souffle Destructeur", desc: "Souffle Destructeur : au tour 3 du combat, le Boss déchaîne sa puissance. Tous les joueurs subissent immédiatement 4 dégâts fixes, sans possibilité d'esquive." } },
+      { name: "Elementaire de feu", img: "feu.png", hp: 50, ca: 14, str: 7, level: 5, spell: "dos-carte" },
+      { name: "Observateur", img: "observateur.png", hp: 50, ca: 14, str: 7, level: 5, spell: "dos-carte" },
+      { name: "Tarasque", img: "tarasque.png", hp: 50, ca: 14, str: 7, level: 5, spell: "dos-carte" }
+    ];
 
-const monsterData = [
-  {name:"Crabe de vase",img:"crabe.png",hp:7,ca:8,str:1,level:1},
-  {name:"Gélatine",img:"gelatine.png",hp:8,ca:6,str:2,level:1},
-  {name:"Gobelin",img:"gobelin.png",hp:7,ca:9,str:2,level:1},
-  {name:"Kobold",img:"kobold.png",hp:7,ca:9,str:2,level:1},
-  {name:"Lutin",img:"lutin.png",hp:7,ca:8,str:1,level:1},
-  {name:"Squelette",img:"squelette.png",hp:8,ca:6,str:2,level:1},
-  {name:"Bébé dragon",img:"logo.png",hp:5,ca:14,str:1,level:1},
-  {name:"Bébé élementaire",img:"logo.png",hp:5,ca:14,str:1,level:1},
-  {name:"Bandit",img:"logo.png",hp:10,ca:5,str:2,level:1},
-  {name:"Loup",img:"logo.png",hp:10,ca:5,str:2,level:1},
-  {name:"Orc",img:"orc.png",hp:15,ca:11,str:2,level:2,spell:{name:"Fureur / Cri de Bataille",desc:"Effet passif — Fureur Ininterrompue : si l'Orc réussit sa riposte et touche le héros, sa rage décuple. Il gagne +1 FOR pour le reste du combat (cumulable jusqu'à +3).\n\nSort de zone — Cri de Bataille Sauvage : lorsque l'Orc entre en combat, il pousse un hurlement terrifiant. Le premier héros à l'attaquer soustrait sa propre CHA à son premier jet de dé."}},
-  {name:"Zombie",img:"zombie.png",hp:15,ca:11,str:2,level:2,spell:{name:"Robustesse / Poison",desc:"Effet passif — Robustesse Mort-Vivante : la première fois que les dégâts d'un héros doivent réduire les PV du Zombie à 0, le Zombie lance un D20. Sur 10 ou plus, il survit et reste à 1 PV.\n\nSort continu — Poison de Cadavre : si le Zombie touche le héros, celui-ci subit Poison et perd 2 PV au début de chacun de ses tours tant qu'il n'a pas été soigné."}},
-  {name:"Hobgobelin",img:"hobgobelin.png",hp:20,ca:10,str:3,level:2,spell:"dos-carte"},
-  {name:"Epouvantail",img:"epouvantail.png",hp:18,ca:11,str:2,level:2,spell:{name:"Regard / Griffes",desc:"Aura passive — Regard Terrifiant : l'Épouvantail irradie une aura de malaise. Tout héros qui l'attaque pour la première fois ignore son bonus de CHA pour ce jet.\n\nEffet de riposte — Griffes de Terreur : s'il touche un héros sur une riposte, la cible subit les dégâts et voit sa FOR réduite de 1 pour son prochain tour."}},
-  {name:"Lézard géant",img:"lezard.png",hp:16,ca:10,str:3,level:2,spell:{name:"Morsure / Peau Épaisse",desc:"Effet passif — Morsure Agrippante : si le Lézard Géant touche le héros, il le maintient entre ses mâchoires. Tant que le héros est agrippé, le monstre gagne +2 CA contre lui tant que le héros n'a pas réussi un jet pour se libérer.\n\nSort passif — Peau Épaisse : au début du combat, le Lézard Géant durcit ses écailles. La première attaque du héros qui réussit voit ses dégâts réduits de moitié (arrondi à l'inférieur)."}},
-  {name:"Goule",img:"goule.png",hp:16,ca:10,str:3,level:2,spell:{name:"Putréfaction / Paralysie",desc:"Aura passive — Odeur de Putréfaction : l'odeur de cadavre donne la nausée. Tous les héros qui attaquent la Goule subissent -1 à leur CHA pour toucher.\n\nSort continu — Griffes de Paralysie : si la Goule touche le héros, le venin nécrotique fige ses muscles. Le héros est Paralysé : au début de son prochain tour, il lance un D20. S'il fait moins de 10, il passe son tour et la Goule l'attaque immédiatement sans lancer de dé."}},
-  {name:"Gnoll",img:"gnoll.png",hp:20,ca:10,str:3,level:2,spell:"dos-carte"},
-  {name:"Gelée Royale",img:"geleeroyale.png",hp:18,ca:11,str:2,level:2,spell:{name:"Amorphe / Acide",desc:"Effet passif — Corps Amorphe : les équipements ne comptent pas face à cette créature.\n\nSort continu — Toucher Acide : si la Gelée Royale touche un héros, elle laisse un résidu acide. Le héros subit le statut Acide et perd 2 PV au début de chacun de ses tours jusqu'à la fin du combat."}},
-  {name:"Ours-Hibou",img:"ourshibou.png",hp:25,ca:11,str:4,level:3,spell:{name:"Étreinte / Cri",desc:"Effet passif — Étreinte de l'Ours : si le monstre réussit sa riposte, il broie le héros dans ses pattes. Le héros subit 4 dégâts de FOR. Au tour suivant, ce héros est obligé d'attaquer ce monstre (impossible de changer de cible ou d'utiliser un objet).\n\nSort de zone — Cri Perçant : au début du combat, l'Ours-Hibou pousse un hululement strident. Tous les héros perdent temporairement leur bonus de CHA pour l'intégralité du premier tour."}},
-  {name:"Gargouille",img:"gargouille.png",hp:22,ca:12,str:3,level:3,spell:{name:"Granit / Plongeon",desc:"Effet de riposte — Griffes de Granit : si la Gargouille touche sur une riposte, elle inflige ses 3 dégâts réglementaires +1 dégât perforant si la CA du héros est inférieure à 9.\n\nSort de zone — Plongeon Destructeur : au premier tour du combat, la Gargouille fond du plafond. Le premier héros à l'attaquer subit -2 sur son D20 pour toucher."}},
-  {name:"Loup-garou",img:"loupgarou.png",hp:22,ca:12,str:3,level:3,spell:{name:"Régénération / Lycanthropie",desc:"Effet passif — Régénération Lunaire : au début de chaque tour de table, le Loup-Garou récupère 2 PV.\n\nSort continu — Malédiction de la Lycanthropie : si le Loup-Garou touche un héros, il le mord. Le héros infecté perd 1 PV par tour. S'il n'est pas soigné avant la fin de la partie, il ne pourra pas récupérer ses PV max entre les niveaux."}},
-  {name:"Elite",img:"elite.png",hp:23,ca:12,str:3,level:3,spell:"dos-carte"},
-  {name:"Minotaure",img:"minotaure.png",hp:23,ca:12,str:3,level:3,spell:{name:"Charge / Balayage",desc:"Sort / Réaction — Charge Cornue : lorsque le héros rate son attaque avec un score de 1 à 5, le Minotaure baisse la tête et charge. Le héros subit 3 dégâts et est projeté : -2 à sa CA jusqu'à son prochain tour.\n\nEffet de riposte — Balayage de Hache : sur une riposte réussie, le joueur ciblé subit 3 dégâts, et le joueur assis immédiatement à sa gauche subit 1 dégât de zone."}},
-  {name:"Bugbear",img:"bugbear.png",hp:25,ca:11,str:4,level:3,spell:"dos-carte"},
-  {name:"Automate",img:"automate.png",hp:32,ca:12,str:6,level:4,spell:{name:"Blindage / Surcharge",desc:"Effet passif — Blindage de Plaque : sa structure le rend difficile à cadrer. Les héros subissent un malus permanent de -1 à leur CHA lorsqu'ils tentent de le toucher.\n\nEffet de seuil — Surcharge de Noyau : à sa mort, l'Automate explose. Tous les joueurs lancent un D20. Ceux qui font moins de 10 subissent 3 dégâts fixes."}},
-  {name:"Wyverne",img:"wyvern.png",hp:32,ca:12,str:6,level:4,spell:"dos-carte"},
-  {name:"Ent",img:"ent.png",hp:31,ca:12,str:6,level:4,spell:{name:"Rappel de la Terre",desc:"Sort continu — Rappel de la Terre : au début de chaque tour de table, l'Ent puise dans le sol et récupère 3 PV."}},
-  {name:"Chef Squelette",img:"chefsquelette.png",hp:31,ca:12,str:6,level:4,spell:{name:"Commandement / Armure",desc:"Sort / Réaction — Enracinement : si un héros rate son attaque, des racines sortent du sol (ou des gardes squelettes l'encerclent). Le héros subit 6 dégâts de FOR et ne pourra pas lancer de dés au prochain tour.\n\nEffet passif — Armure de Maître : chaque attaque réussie d'un héros inflige 1 point de dégât de moins que sa FOR normale."}},
-  {name:"Manticore",img:"manticore.png",hp:32,ca:13,str:5,level:4,spell:{name:"Pointes / Souffle",desc:"Effet passif — Pluie de Pointes : si un héros rate son attaque, le monstre inflige ses 5 dégâts de FOR, mais inflige 2 dégâts à tous les héros.\n\nSort / Réaction — Souffle de Feu : lorsque le héros obtient un 1 naturel sur son D20, la Chimère l'immerge sous un torrent de flammes. Le héros subit 3 fois les dégâts."}},
-  {name:"Chimère",img:"chimere.png",hp:32,ca:13,str:5,level:4,spell:{name:"Pointes / Souffle",desc:"Effet passif — Pluie de Pointes : si un héros rate son attaque, le monstre inflige ses 5 dégâts de FOR, mais inflige 2 dégâts à tous les héros.\n\nSort / Réaction — Souffle de Feu : lorsque le héros obtient un 1 naturel sur son D20, la Chimère l'immerge sous un torrent de flammes. Le héros subit 3 fois les dégâts."}},
-  {name:"Dragon Rouge",img:"dragon.png",hp:50,ca:14,str:7,level:5,spell:{name:"Présence Terrifiante",desc:"Aura passive — Présence Terrifiante : face au Boss, la peur paralyse les cœurs. Tous les héros subissent un malus permanent de -1 CHA et -1 CA pendant toute la durée de l'affrontement final."}},
-  {name:"Kraken",img:"kraken.png",hp:50,ca:14,str:7,level:5,spell:{name:"Légendaire Riposte",desc:"Effet passif — Légendaire Riposte : le Boss est si rapide que si deux héros d'affilée ratent leur jet de dé, le deuxième raté déclenche une attaque automatique sur le troisième héros."}},
-  {name:"Hydre",img:"hydre.png",hp:50,ca:14,str:7,level:5,spell:{name:"Philtre d'Immortalité",desc:"Effet de seuil — Philtre d'Immortalité : la première fois que le Boss atteint 0 PV, il ne meurt pas immédiatement. Il aspire l'énergie de la pièce, inflige 2 dégâts à tous les héros, et revient à la vie avec 10 PV. Les héros doivent lui porter un dernier coup fatal."}},
-  {name:"Archidémon",img:"archidome.png",hp:50,ca:14,str:7,level:5,spell:{name:"Têtes / Aura de Mort",desc:"Effet passif — Multiplication des Têtes : plus on le blesse, plus il devient dangereux. Tant que le Boss a plus de 25 PV, il inflige 7 dégâts de FOR. Dès qu'il tombe sous la barre des 25 PV, sa FOR passe à 9 dégâts par riposte réussie."}},
-  {name:"Liche",img:"liche.png",hp:50,ca:14,str:7,level:5,spell:{name:"Regard de Mort",desc:"Sort continu — Regard de Mort : si le Boss réussit une riposte contre un héros, il le marque du sceau de la mort. Le héros est Maudit : il perd 3 PV au début de chacun de ses tours. Les capacités de soin sur ce héros sont divisées par deux."}},
-  {name:"Chef Orc",img:"cheforc.png",hp:50,ca:14,str:7,level:5,spell:{name:"Souffle Destructeur",desc:"Sort de zone — Souffle Destructeur : au tour 3 du combat, le Boss déchaîne sa puissance. Tous les joueurs subissent immédiatement 4 dégâts fixes, sans possibilité d'esquive."}},
-  {name:"Elementaire de feu",img:"feu.png",hp:50,ca:14,str:7,level:5,spell:"dos-carte"},
-  {name:"Observateur",img:"observateur.png",hp:50,ca:14,str:7,level:5,spell:"dos-carte"},
-  {name:"Tarasque",img:"tarasque.png",hp:50,ca:14,str:7,level:5,spell:"dos-carte"}
-];
+    // STATE
+    let heroes = heroData.map(h => ({ ...h, curHp: h.hp, curCa: h.ca, curCha: h.cha, curStr: h.str, level: 1, spellUsed: false }));
+    let monsters = monsterData.map(m => ({ ...m, curHp: m.hp, curCa: m.ca, curStr: m.str, spellUsed: false }));
+    let selectedHero = null;
+    let selectedMonster = null;
+    let accumulatedDelta = 0;
+    let counterTimer = null;
+    let currentScreen = "HERO";
+    let monsterLevel = 1;
+    let numHeroes = 1;
+    let selectedHeroes = [];
+    let currentHeroIdx = 0;
 
-// STATE
-let heroes = heroData.map(h => ({...h,curHp:h.hp,curCa:h.ca,curCha:h.cha,curStr:h.str,level:1,spellUsed:false}));
-let monsters = monsterData.map(m => ({...m,curHp:m.hp,curCa:m.ca,curStr:m.str,spellUsed:false}));
-let selectedHero = null;
-let selectedMonster = null;
-let accumulatedDelta = 0;
-let counterTimer = null;
-let currentScreen = "HERO";
-let monsterLevel = 1;
-let numHeroes = 1;
-let selectedHeroes = [];
-let currentHeroIdx = 0;
+    // DOM REFS
+    const $ = id => document.getElementById(id);
+    const heroGrid = $("heroGrid");
+    const monsterGrid = $("monsterGrid");
+    const screenHeroSelect = $("screen-hero-select");
+    const screenMain = $("screen-main");
+    const screenMonsterList = $("screen-monster-list");
+    const statsRow = $("statsRow");
+    const levelBtn = $("levelBtn");
+    const floatingCounter = $("floatingCounter");
+    const navBtns = document.querySelectorAll(".nav-btn");
 
-// DOM REFS
-const $ = id => document.getElementById(id);
-const heroGrid = $("heroGrid");
-const monsterGrid = $("monsterGrid");
-const screenHeroSelect = $("screen-hero-select");
-const screenMain = $("screen-main");
-const screenMonsterList = $("screen-monster-list");
-const statsRow = $("statsRow");
-const levelBtn = $("levelBtn");
-const floatingCounter = $("floatingCounter");
-const navBtns = document.querySelectorAll(".nav-btn");
-
-// HELPERS
-const screenMap = { home:"screen-home", "hero-select":"screen-hero-select", main:"screen-main", "monster-list":"screen-monster-list" };
-function showScreen(id) {
-  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-  $(screenMap[id]).classList.add("active");
-}
-
-function updateNav() {
-  $("nav").classList.toggle("visible", !!selectedHero);
-  document.querySelector(".nav-btn.monster-detail-btn").classList.toggle("hidden", !selectedMonster);
-}
-
-function triggerCounter(delta) {
-  if (counterTimer) clearTimeout(counterTimer);
-  accumulatedDelta += delta;
-  const el = floatingCounter;
-  el.textContent = accumulatedDelta > 0 ? "+"+accumulatedDelta : String(accumulatedDelta);
-  el.style.background = accumulatedDelta > 0 ? "rgba(76,175,80,.8)" : "rgba(229,57,53,.8)";
-  el.classList.add("show");
-  counterTimer = setTimeout(() => {
-    el.classList.remove("show");
-    accumulatedDelta = 0;
-  }, 1000);
-}
-
-function setupLongPress(btn, action) {
-  let timer, interval, isPressed = false;
-  function start(e) {
-    if (isPressed) return;
-    isPressed = true;
-    if (e.type === "touchstart") e.preventDefault();
-    action();
-    timer = setTimeout(() => { interval = setInterval(action, 80); }, 350);
-  }
-  function stop() {
-    isPressed = false;
-    if (timer) { clearTimeout(timer); timer = null; }
-    if (interval) { clearInterval(interval); interval = null; }
-  }
-  btn.addEventListener("mousedown", start);
-  btn.addEventListener("mouseup", stop);
-  btn.addEventListener("mouseleave", stop);
-  btn.addEventListener("touchstart", start, { passive: false });
-  btn.addEventListener("touchend", stop);
-  btn.addEventListener("touchcancel", stop);
-}
-
-function setSpellBtn(hero) {
-  const sb = $("spellBtn");
-  sb.classList.add("visible");
-  sb.textContent = "POUVOIR";
-  sb.style.textDecoration = hero.spellUsed ? "line-through" : "";
-  sb.classList.toggle("used", hero.spellUsed);
-}
-
-function resetSlide(slide, visible) {
-  slide.style.cssText = `display:flex;transition:none;transform:translateX(0);opacity:${visible?1:0}`;
-}
-
-function closeSpellOverlay() {
-  $("spellOverlay").classList.remove("visible");
-  $("spellCard").style.transition = "";
-  $("spellCard").style.transform = "";
-}
-
-const heroStats = [
-  {field:"curHp",label:"PV",mod: d => d < 0 && selectedMonster ? -selectedMonster.str : d},
-  {field:"curCa",label:"CA"},
-  {field:"curCha",label:"CHA"},
-  {field:"curStr",label:"FOR"}
-];
-
-function makeStatHandler(field, hero, mod) {
-  return (d, el) => {
-    const dd = mod ? mod(d) : d;
-    hero[field] += dd;
-    el.textContent = hero[field];
-    triggerCounter(dd);
-  };
-}
-
-function renderHeroStats(hero) {
-  renderStats(heroStats.map(s => ({
-    label: s.label,
-    value: hero[s.field],
-    modifiable: true,
-    onChange: makeStatHandler(s.field, hero, s.mod)
-  })));
-}
-
-function monsterDeathCleanup() {
-  if (counterTimer) { clearTimeout(counterTimer); counterTimer = null; }
-  floatingCounter.classList.remove("show");
-  accumulatedDelta = 0;
-  selectedMonster = null;
-  showScreen("main");
-  renderHeroDetail();
-  updateNav();
-}
-
-function monsterHpOnChange(m) {
-  return (d, el) => {
-    m.curHp += d;
-    el.textContent = m.curHp;
-    if (m.curHp <= 0) { m.curHp = 0; el.textContent = 0; monsterDeathCleanup(); }
-    else { triggerCounter(d); }
-  };
-}
-
-// RENDER HERO SELECTION
-function renderHeroSelection() {
-  selectedHeroes = [];
-  selectedHero = null;
-  const maxSel = numHeroes;
-  $("heroSelectMax").textContent = maxSel;
-  heroGrid.innerHTML = '<h2>Sélectionnez vos héros</h2>';
-  heroes.forEach((h,i) => {
-    const card = document.createElement("div");
-    card.className = "hero-card";
-    card.innerHTML =
-      `<div class="hero-check">✓</div>` +
-      `<img src="${h.img}" alt="${h.name}" loading="lazy"><div class="name">${h.name}</div>`;
-    card.addEventListener("click", () => toggleHero(i, card, maxSel));
-    heroGrid.appendChild(card);
-  });
-  updateHeroFooter();
-}
-
-function toggleHero(index, card, maxSel) {
-  const idx = selectedHeroes.indexOf(index);
-  if (idx !== -1) {
-    selectedHeroes.splice(idx, 1);
-    card.classList.remove("selected");
-  } else if (selectedHeroes.length < maxSel) {
-    selectedHeroes.push(index);
-    card.classList.add("selected");
-  }
-  updateHeroFooter();
-}
-
-function updateHeroFooter() {
-  const count = selectedHeroes.length;
-  const max = numHeroes;
-  $("heroSelectCount").textContent = `${count}/${max} sélectionnés`;
-  const confirmBtn = $("heroConfirmBtn");
-  if (count === max) {
-    confirmBtn.classList.add("enabled");
-  } else {
-    confirmBtn.classList.remove("enabled");
-  }
-}
-
-$("heroConfirmBtn").addEventListener("click", confirmHeroSelection);
-
-function confirmHeroSelection() {
-  if (selectedHeroes.length !== numHeroes) return;
-  currentHeroIdx = 0;
-  selectedHero = heroes[selectedHeroes[0]];
-  selectedMonster = null;
-  monsterLevel = selectedHero.level;
-  showScreen("main");
-  renderHeroDetail();
-  updateNav();
-}
-
-// RENDER HERO DETAIL (CAROUSEL)
-function renderHeroDetail() {
-  const h = selectedHero;
-  if (!h) return;
-  levelBtn.textContent = "NIVEAU "+h.level;
-  levelBtn.onclick = () => { heroLevelUp(h); renderHeroDetail(); };
-  renderCarousel();
-  renderHeroStats(h);
-}
-
-function heroLevelUp(h) {
-  if (h.level < 5) {
-    h.level++;
-    h.curHp = h.hp + 3 * (h.level - 1);
-    h.curStr = h.str + (h.level - 1);
-    if (h.level === 4) { h.curCa += 1; h.curCha += 1; }
-  } else {
-    h.level = 1;
-    h.curHp = h.hp;
-    h.curStr = h.str;
-    h.curCa = h.ca;
-    h.curCha = h.cha;
-  }
-  h.spellUsed = false;
-  closeSpellOverlay();
-  $("spellBtn").textContent = "POUVOIR";
-  $("spellBtn").style.textDecoration = "";
-  $("spellBtn").classList.remove("used");
-}
-
-// CAROUSEL — animation séquentielle: sortie puis entrée
-const cs = [$("slideA"), $("slideB")];
-let actIdx = 0;
-
-function waitForTransition(el) {
-  return new Promise(resolve => {
-    const done = () => { el.removeEventListener("transitionend", done); resolve(); };
-    el.addEventListener("transitionend", done);
-    setTimeout(resolve, 500);
-  });
-}
-
-function renderCarousel() {
-  const heroParty = selectedHeroes.map(i => heroes[i]);
-  const curr = heroParty[currentHeroIdx];
-  const prev = currentHeroIdx > 0 ? heroParty[currentHeroIdx - 1] : null;
-  const next = currentHeroIdx < heroParty.length - 1 ? heroParty[currentHeroIdx + 1] : null;
-
-  cs[0].innerHTML = `<img src="${curr.img}" alt="${curr.name}">`;
-  resetSlide(cs[0], true);
-  resetSlide(cs[1], false);
-  setSpellBtn(curr);
-  actIdx = 0;
-
-  showCarouselUI(heroParty, prev, next);
-}
-
-function showCarouselUI(heroParty, prev, next) {
-  const tp = $("ctPrev"), tn = $("ctNext");
-  tp.innerHTML = prev ? `<img src="${prev.img}" alt="">` : "";
-  tn.innerHTML = next ? `<img src="${next.img}" alt="">` : "";
-  tp.classList.toggle("visible", !!prev);
-  tn.classList.toggle("visible", !!next);
-  tp.onclick = prev ? () => navigateHero(-1) : null;
-  tn.onclick = next ? () => navigateHero(1) : null;
-
-  const dc = $("carouselDots");
-  dc.innerHTML = "";
-  heroParty.forEach((_, i) => {
-    const dot = document.createElement("div");
-    dot.className = "carousel-dot" + (i === currentHeroIdx ? " active" : "");
-    dc.appendChild(dot);
-  });
-}
-
-async function navigateHero(delta) {
-  const total = selectedHeroes.length;
-  if (currentHeroIdx + delta < 0 || currentHeroIdx + delta >= total) return;
-
-  const heroParty = selectedHeroes.map(i => heroes[i]);
-  const newIdx = currentHeroIdx + delta;
-  const outDir = delta === 1 ? "left" : "right";
-  const inDir = delta === 1 ? "right" : "left";
-
-  const act = cs[actIdx];
-  const buf = cs[1 - actIdx];
-  const newHero = heroParty[newIdx];
-  const newPrev = newIdx > 0 ? heroParty[newIdx - 1] : null;
-  const newNext = newIdx < total - 1 ? heroParty[newIdx + 1] : null;
-
-  // Mettre à jour l'état immédiatement
-  currentHeroIdx = newIdx;
-  selectedHero = newHero;
-  monsterLevel = newHero.level;
-
-  closeSpellOverlay();
-  setSpellBtn(newHero);
-
-  levelBtn.textContent = "NIVEAU "+newHero.level;
-  levelBtn.onclick = () => { heroLevelUp(newHero); renderHeroDetail(); };
-  renderHeroStats(newHero);
-  showCarouselUI(heroParty, newPrev, newNext);
-  updateNav();
-
-  // Animer les deux slides avec léger chevauchement
-  buf.innerHTML = `<img src="${newHero.img}" alt="${newHero.name}">`;
-  buf.style.cssText = `display:flex;transition:none;transform:translateX(${inDir === "right" ? "" : "-"}110%);opacity:1`;
-  act.style.transition = "none";
-  act.style.transform = "translateX(0)";
-  act.style.opacity = "1";
-  await new Promise(r => requestAnimationFrame(r));
-
-  act.style.transition = "transform .25s ease-in, opacity .22s ease-in";
-  act.style.transform = `translateX(${outDir === "left" ? "-" : ""}110%)`;
-  act.style.opacity = "0";
-
-  // Le nouveau héros commence à entrer avant que l'ancien soit complètement sorti
-  const enter = new Promise(r => setTimeout(() => {
-    buf.style.transition = "transform .3s cubic-bezier(.2,0,.2,1), opacity .25s ease-out";
-    buf.style.transform = "translateX(0)";
-    buf.style.opacity = "1";
-    waitForTransition(buf).then(r);
-  }, 160));
-
-  await Promise.all([waitForTransition(act), enter]);
-
-  // Finalisation
-  act.style.transition = "none";
-  act.style.transform = "translateX(0)";
-  act.style.opacity = "0";
-  actIdx = 1 - actIdx;
-}
-
-// SPELL CARD
-function getSpellImages(spell) {
-  function p(s) { return "Carte pouvoir_" + s + ".png"; }
-  return { front: p(spell + "_no use"), back: p(spell) };
-}
-
-function openSpellCard() {
-  const entity = selectedMonster || selectedHero;
-  if (!entity || entity.spellUsed) return;
-  if (entity === selectedMonster && entity.level < 2) return;
-  const overlay = $("spellOverlay");
-  const inner = $("spellCardInner");
-  const card = $("spellCard");
-  const ft = $("spellFrontText"), bt = $("spellBackText");
-  if (typeof entity.spell === "object") {
-    $("spellCardFront").src = "dos-carte.png";
-    $("spellCardBack").src = "dos-carte.png";
-    const fmt = entity.spell.desc.split('\n\n').map(e => e.replace(/^[^—]*—\s*(.+?)\s*:\s*(.*)$/,'<br><strong>$1</strong> : $2')).join('');
-    ft.innerHTML = fmt;
-    bt.innerHTML = fmt;
-    ft.classList.add("show");
-    bt.classList.add("show");
-  } else if (selectedMonster) {
-    ft.classList.remove("show");
-    bt.classList.remove("show");
-    $("spellCardFront").src = "dos-carte.png";
-    $("spellCardBack").src = "dos-carte.png";
-  } else {
-    ft.classList.remove("show");
-    bt.classList.remove("show");
-    const imgs = getSpellImages(entity.spell);
-    $("spellCardFront").src = imgs.front;
-    $("spellCardBack").src = imgs.back;
-  }
-  inner.classList.remove("flipped");
-  card.style.transition = "none";
-  card.style.transform = "";
-  overlay.classList.add("visible");
-}
-
-function markSpellUsed(entity) {
-  entity = entity || selectedMonster || selectedHero;
-  if (!entity) return;
-  entity.spellUsed = true;
-  const btn = $("spellBtn");
-  btn.textContent = "POUVOIR";
-  btn.style.textDecoration = "line-through";
-  btn.classList.add("used");
-}
-
-function closeSpellCard(used, hero) {
-  const overlay = $("spellOverlay");
-  if (!overlay.classList.contains("visible")) return;
-  const card = $("spellCard");
-  const btn = $("spellBtn");
-  const br = btn.getBoundingClientRect();
-  const cr = card.getBoundingClientRect();
-  const dx = br.left + br.width / 2 - (cr.left + cr.width / 2);
-  const dy = br.top + br.height / 2 - (cr.top + cr.height / 2);
-  const sx = br.width / cr.width;
-  const sy = br.height / cr.height;
-  card.style.transition = "transform .3s ease-in";
-  card.style.transform = `translate(${dx}px,${dy}px) scale(${sx},${sy})`;
-  setTimeout(() => {
-    overlay.classList.remove("visible");
-    card.style.transition = "";
-    card.style.transform = "";
-    if (used) markSpellUsed(hero);
-  }, 300);
-}
-
-$("spellBtn").addEventListener("click", () => {
-  const entity = selectedMonster || selectedHero;
-  if (!entity || entity.spellUsed) return;
-  if (entity === selectedMonster && entity.level < 2) return;
-  const overlay = $("spellOverlay");
-  if (overlay.classList.contains("visible")) {
-    overlay.classList.remove("visible");
-    return;
-  }
-  openSpellCard();
-});
-
-$("spellCard").addEventListener("click", async () => {
-  const entity = selectedMonster || selectedHero;
-  if (!entity) return;
-  const inner = $("spellCardInner");
-  if (inner.classList.contains("flipped")) return;
-  inner.classList.add("flipped");
-  await new Promise(r => setTimeout(r, 650));
-  closeSpellCard(true, entity);
-});
-
-// SWIPE & MOUSE DRAG
-(function() {
-  const el = $("carousel");
-  let startX = 0, startY = 0, down = false;
-  function onDown(e) {
-    startX = e.clientX ?? e.touches[0].clientX;
-    startY = e.clientY ?? e.touches[0].clientY;
-    down = true;
-  }
-  function onUp(e) {
-    if (!down) return;
-    down = false;
-    if (selectedMonster) return;
-    const cx = e.clientX ?? e.changedTouches[0].clientX;
-    const cy = e.clientY ?? e.changedTouches[0].clientY;
-    const dx = cx - startX;
-    const dy = cy - startY;
-    if (Math.abs(dx) > 40 && (!startY || Math.abs(dx) > Math.abs(dy) * 1.5)) {
-      navigateHero(dx < 0 ? 1 : -1);
+    // HELPERS
+    const screenMap = { home: "screen-home", "hero-select": "screen-hero-select", main: "screen-main", "monster-list": "screen-monster-list" };
+    function showScreen(id) {
+      document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+      $(screenMap[id]).classList.add("active");
     }
-  }
-  el.addEventListener("mousedown", onDown);
-  el.addEventListener("mouseup", onUp);
-  el.addEventListener("mouseleave", () => { down = false; });
-  el.addEventListener("touchstart", onDown, { passive: true });
-  el.addEventListener("touchmove", e => {
-    if (down && Math.abs(e.touches[0].clientX - startX) > 10) e.preventDefault();
-  }, { passive: false });
-  el.addEventListener("touchend", onUp);
-})();
 
-// RENDER MONSTER LIST
-function renderMonsterList() {
-  if (!selectedHero) return;
-  const filtered = monsters.filter(m => m.level === monsterLevel);
-  monsterGrid.innerHTML = `<div class="level-header"><button onclick="cycleMonsterLevel()">NIVEAU ${monsterLevel}</button></div>`;
-  filtered.forEach(m => {
-    const card = document.createElement("div");
-    card.className = "monster-card";
-    card.innerHTML = `<img src="${m.img}" alt="${m.name}" loading="lazy"><div class="name">${m.name}</div>`;
-    card.addEventListener("click",() => selectMonster(m));
-    monsterGrid.appendChild(card);
-  });
-}
-
-function cycleMonsterLevel() {
-  monsterLevel = monsterLevel >= 5 ? 1 : monsterLevel + 1;
-  renderMonsterList();
-}
-
-function selectMonster(monster) {
-  selectedMonster = monster;
-  showScreen("main");
-  renderMonsterDetail();
-  updateNav();
-}
-
-// RENDER MONSTER DETAIL
-function renderMonsterDetail() {
-  const m = selectedMonster;
-  if (!m) return;
-  levelBtn.textContent = "NIVEAU "+m.level;
-  levelBtn.onclick = null;
-  $("spellOverlay").classList.remove("visible");
-  $("ctPrev").classList.remove("visible");
-  $("ctNext").classList.remove("visible");
-  $("carouselDots").innerHTML = "";
-  cs[0].innerHTML = `<img src="${m.img}" alt="${m.name}">`;
-  resetSlide(cs[0], true);
-  resetSlide(cs[1], false);
-  if (m.level >= 2 && m.spell) {
-    $("spellBtn").classList.add("visible");
-    $("spellBtn").textContent = "POUVOIR";
-    $("spellBtn").style.textDecoration = m.spellUsed ? "line-through" : "";
-    $("spellBtn").classList.toggle("used", m.spellUsed);
-  } else {
-    $("spellBtn").classList.remove("visible");
-  }
-  renderStats([
-    {label:"PV",value:m.curHp,modifiable:true,minusOnly:true,onChange:monsterHpOnChange(m)},
-    {label:"CA",value:m.curCa,modifiable:true,onChange:(d,el)=>{m.curCa+=d;el.textContent=m.curCa;triggerCounter(d);}},
-    {label:"FOR",value:m.curStr,modifiable:true,onChange:(d,el)=>{m.curStr+=d;el.textContent=m.curStr;triggerCounter(d);}}
-  ]);
-}
-
-// RENDER STATS
-function spacer() { const d = document.createElement("div"); d.style.height = "32px"; return d; }
-
-function renderStats(stats) {
-  statsRow.innerHTML = "";
-  stats.forEach(s => {
-    const div = document.createElement("div");
-    div.className = "stat";
-    div.innerHTML = `<div class="label">${s.label}</div>`;
-    const value = document.createElement("div");
-    value.className = "value";
-    value.textContent = s.value;
-    if (s.modifiable) {
-      if (!s.minusOnly) {
-        const plus = document.createElement("button");
-        plus.className = "stat-btn plus";
-        plus.textContent = "+";
-        setupLongPress(plus, () => s.onChange(1, value));
-        div.appendChild(plus);
-      } else {
-        div.appendChild(spacer());
-      }
-      div.appendChild(value);
-      const minus = document.createElement("button");
-      minus.className = "stat-btn minus";
-      minus.textContent = "\u2212";
-      setupLongPress(minus, () => s.onChange(-1, value));
-      div.appendChild(minus);
-    } else {
-      div.appendChild(spacer());
-      div.appendChild(value);
-      div.appendChild(spacer());
+    function updateNav() {
+      $("nav").classList.toggle("visible", !!selectedHero);
+      document.querySelector(".nav-btn.monster-detail-btn").classList.toggle("hidden", !selectedMonster);
     }
-    statsRow.appendChild(div);
-  });
-}
 
-// HOME SCREEN
-const heroCountDisplay = $("heroCountDisplay");
-$("heroPlus").addEventListener("click", () => {
-  if (numHeroes < 8) { numHeroes++; heroCountDisplay.textContent = numHeroes; }
-});
-$("heroMinus").addEventListener("click", () => {
-  if (numHeroes > 1) { numHeroes--; heroCountDisplay.textContent = numHeroes; }
-});
-$("startBtn").addEventListener("click", () => {
-  showScreen("hero-select");
-  renderHeroSelection();
-});
+    function triggerCounter(delta) {
+      if (counterTimer) clearTimeout(counterTimer);
+      accumulatedDelta += delta;
+      const el = floatingCounter;
+      el.textContent = accumulatedDelta > 0 ? "+" + accumulatedDelta : String(accumulatedDelta);
+      el.style.background = accumulatedDelta > 0 ? "rgba(76,175,80,.8)" : "rgba(229,57,53,.8)";
+      el.classList.add("show");
+      counterTimer = setTimeout(() => {
+        el.classList.remove("show");
+        accumulatedDelta = 0;
+      }, 1000);
+    }
 
-// NAVIGATION
-navBtns.forEach(btn => {
-  btn.addEventListener("click", () => {
-    const screen = btn.dataset.screen;
-    currentScreen = screen;
-    switchScreen(screen);
-  });
-});
-
-function switchScreen(screen) {
-  switch(screen) {
-    case "HERO":
-      if (selectedHero) {
-        showScreen("main");
-        renderHeroDetail();
-      } else {
-        showScreen("hero-select");
-        renderHeroSelection();
+    function setupLongPress(btn, action) {
+      let timer, interval, isPressed = false;
+      function start(e) {
+        if (isPressed) return;
+        isPressed = true;
+        if (e.type === "touchstart") e.preventDefault();
+        action();
+        timer = setTimeout(() => { interval = setInterval(action, 80); }, 350);
       }
-      break;
-    case "MONSTER_LIST":
+      function stop() {
+        isPressed = false;
+        if (timer) { clearTimeout(timer); timer = null; }
+        if (interval) { clearInterval(interval); interval = null; }
+      }
+      btn.addEventListener("mousedown", start);
+      btn.addEventListener("mouseup", stop);
+      btn.addEventListener("mouseleave", stop);
+      btn.addEventListener("touchstart", start, { passive: false });
+      btn.addEventListener("touchend", stop);
+      btn.addEventListener("touchcancel", stop);
+    }
+
+    function setSpellBtn(hero) {
+      const sb = $("spellBtn");
+      sb.classList.add("visible");
+      sb.textContent = "POUVOIR";
+      sb.style.textDecoration = hero.spellUsed ? "line-through" : "";
+      sb.classList.toggle("used", hero.spellUsed);
+    }
+
+    function resetSlide(slide, visible) {
+      slide.style.cssText = `display:flex;transition:none;transform:translateX(0);opacity:${visible ? 1 : 0}`;
+    }
+
+    function closeSpellOverlay() {
+      $("spellOverlay").classList.remove("visible");
+      $("spellCard").style.transition = "";
+      $("spellCard").style.transform = "";
+    }
+
+    const heroStats = [
+      { field: "curHp", label: "PV", mod: d => d < 0 && selectedMonster ? -selectedMonster.str : d },
+      { field: "curCa", label: "CA" },
+      { field: "curCha", label: "CHA" },
+      { field: "curStr", label: "FOR" }
+    ];
+
+    function makeStatHandler(field, hero, mod) {
+      return (d, el) => {
+        const dd = mod ? mod(d) : d;
+        hero[field] += dd;
+        el.textContent = hero[field];
+        triggerCounter(dd);
+      };
+    }
+
+    function renderHeroStats(hero) {
+      renderStats(heroStats.map(s => ({
+        label: s.label,
+        value: hero[s.field],
+        modifiable: true,
+        onChange: makeStatHandler(s.field, hero, s.mod)
+      })));
+    }
+
+    function monsterDeathCleanup() {
+      if (counterTimer) { clearTimeout(counterTimer); counterTimer = null; }
+      floatingCounter.classList.remove("show");
+      accumulatedDelta = 0;
+      selectedMonster = null;
+      showScreen("main");
+      renderHeroDetail();
+      updateNav();
+    }
+
+    function monsterHpOnChange(m) {
+      return (d, el) => {
+        m.curHp += d;
+        el.textContent = m.curHp;
+        if (m.curHp <= 0) { m.curHp = 0; el.textContent = 0; monsterDeathCleanup(); }
+        else { triggerCounter(d); }
+      };
+    }
+
+    // RENDER HERO SELECTION
+    function renderHeroSelection() {
+      selectedHeroes = [];
+      selectedHero = null;
+      const maxSel = numHeroes;
+      $("heroSelectMax").textContent = maxSel;
+      heroGrid.innerHTML = '<h2>Sélectionnez vos héros</h2>';
+      heroes.forEach((h, i) => {
+        const card = document.createElement("div");
+        card.className = "hero-card";
+        card.innerHTML =
+          `<div class="hero-check">✓</div>` +
+          `<img src="${h.img}" alt="${h.name}" loading="lazy"><div class="name">${h.name}</div>`;
+        card.addEventListener("click", () => toggleHero(i, card, maxSel));
+        heroGrid.appendChild(card);
+      });
+      updateHeroFooter();
+    }
+
+    function toggleHero(index, card, maxSel) {
+      const idx = selectedHeroes.indexOf(index);
+      if (idx !== -1) {
+        selectedHeroes.splice(idx, 1);
+        card.classList.remove("selected");
+      } else if (selectedHeroes.length < maxSel) {
+        selectedHeroes.push(index);
+        card.classList.add("selected");
+      }
+      updateHeroFooter();
+    }
+
+    function updateHeroFooter() {
+      const count = selectedHeroes.length;
+      const max = numHeroes;
+      $("heroSelectCount").textContent = `${count}/${max} sélectionnés`;
+      const confirmBtn = $("heroConfirmBtn");
+      if (count === max) {
+        confirmBtn.classList.add("enabled");
+      } else {
+        confirmBtn.classList.remove("enabled");
+      }
+    }
+
+    $("heroConfirmBtn").addEventListener("click", confirmHeroSelection);
+
+    function confirmHeroSelection() {
+      if (selectedHeroes.length !== numHeroes) return;
+      currentHeroIdx = 0;
+      selectedHero = heroes[selectedHeroes[0]];
+      selectedMonster = null;
+      monsterLevel = selectedHero.level;
+      showScreen("main");
+      renderHeroDetail();
+      updateNav();
+    }
+
+    // RENDER HERO DETAIL (CAROUSEL)
+    function renderHeroDetail() {
+      const h = selectedHero;
+      if (!h) return;
+      levelBtn.textContent = "NIVEAU " + h.level;
+      levelBtn.onclick = () => { heroLevelUp(h); renderHeroDetail(); };
+      renderCarousel();
+      renderHeroStats(h);
+    }
+
+    function heroLevelUp(h) {
+      if (h.level < 5) {
+        h.level++;
+        h.curHp = h.hp + 3 * (h.level - 1);
+        h.curStr = h.str + (h.level - 1);
+        if (h.level === 4) { h.curCa += 1; h.curCha += 1; }
+      } else {
+        h.level = 1;
+        h.curHp = h.hp;
+        h.curStr = h.str;
+        h.curCa = h.ca;
+        h.curCha = h.cha;
+      }
+      h.spellUsed = false;
+      closeSpellOverlay();
+      $("spellBtn").textContent = "POUVOIR";
+      $("spellBtn").style.textDecoration = "";
+      $("spellBtn").classList.remove("used");
+    }
+
+    // CAROUSEL — animation séquentielle: sortie puis entrée
+    const cs = [$("slideA"), $("slideB")];
+    let actIdx = 0;
+
+    function waitForTransition(el) {
+      return new Promise(resolve => {
+        const done = () => { el.removeEventListener("transitionend", done); resolve(); };
+        el.addEventListener("transitionend", done);
+        setTimeout(resolve, 500);
+      });
+    }
+
+    function renderCarousel() {
+      const heroParty = selectedHeroes.map(i => heroes[i]);
+      const curr = heroParty[currentHeroIdx];
+      const prev = currentHeroIdx > 0 ? heroParty[currentHeroIdx - 1] : null;
+      const next = currentHeroIdx < heroParty.length - 1 ? heroParty[currentHeroIdx + 1] : null;
+
+      cs[0].innerHTML = `<img src="${curr.img}" alt="${curr.name}">`;
+      resetSlide(cs[0], true);
+      resetSlide(cs[1], false);
+      setSpellBtn(curr);
+      actIdx = 0;
+
+      showCarouselUI(heroParty, prev, next);
+    }
+
+    function showCarouselUI(heroParty, prev, next) {
+      const tp = $("ctPrev"), tn = $("ctNext");
+      tp.innerHTML = prev ? `<img src="${prev.img}" alt="">` : "";
+      tn.innerHTML = next ? `<img src="${next.img}" alt="">` : "";
+      tp.classList.toggle("visible", !!prev);
+      tn.classList.toggle("visible", !!next);
+      tp.onclick = prev ? () => navigateHero(-1) : null;
+      tn.onclick = next ? () => navigateHero(1) : null;
+
+      const dc = $("carouselDots");
+      dc.innerHTML = "";
+      heroParty.forEach((_, i) => {
+        const dot = document.createElement("div");
+        dot.className = "carousel-dot" + (i === currentHeroIdx ? " active" : "");
+        dc.appendChild(dot);
+      });
+    }
+
+    async function navigateHero(delta) {
+      const total = selectedHeroes.length;
+      if (currentHeroIdx + delta < 0 || currentHeroIdx + delta >= total) return;
+
+      const heroParty = selectedHeroes.map(i => heroes[i]);
+      const newIdx = currentHeroIdx + delta;
+      const outDir = delta === 1 ? "left" : "right";
+      const inDir = delta === 1 ? "right" : "left";
+
+      const act = cs[actIdx];
+      const buf = cs[1 - actIdx];
+      const newHero = heroParty[newIdx];
+      const newPrev = newIdx > 0 ? heroParty[newIdx - 1] : null;
+      const newNext = newIdx < total - 1 ? heroParty[newIdx + 1] : null;
+
+      // Mettre à jour l'état immédiatement
+      currentHeroIdx = newIdx;
+      selectedHero = newHero;
+      monsterLevel = newHero.level;
+
+      closeSpellOverlay();
+      setSpellBtn(newHero);
+
+      levelBtn.textContent = "NIVEAU " + newHero.level;
+      levelBtn.onclick = () => { heroLevelUp(newHero); renderHeroDetail(); };
+      renderHeroStats(newHero);
+      showCarouselUI(heroParty, newPrev, newNext);
+      updateNav();
+
+      // Animer les deux slides avec léger chevauchement
+      buf.innerHTML = `<img src="${newHero.img}" alt="${newHero.name}">`;
+      buf.style.cssText = `display:flex;transition:none;transform:translateX(${inDir === "right" ? "" : "-"}110%);opacity:1`;
+      act.style.transition = "none";
+      act.style.transform = "translateX(0)";
+      act.style.opacity = "1";
+      await new Promise(r => requestAnimationFrame(r));
+
+      act.style.transition = "transform .25s ease-in, opacity .22s ease-in";
+      act.style.transform = `translateX(${outDir === "left" ? "-" : ""}110%)`;
+      act.style.opacity = "0";
+
+      // Le nouveau héros commence à entrer avant que l'ancien soit complètement sorti
+      const enter = new Promise(r => setTimeout(() => {
+        buf.style.transition = "transform .3s cubic-bezier(.2,0,.2,1), opacity .25s ease-out";
+        buf.style.transform = "translateX(0)";
+        buf.style.opacity = "1";
+        waitForTransition(buf).then(r);
+      }, 160));
+
+      await Promise.all([waitForTransition(act), enter]);
+
+      // Finalisation
+      act.style.transition = "none";
+      act.style.transform = "translateX(0)";
+      act.style.opacity = "0";
+      actIdx = 1 - actIdx;
+    }
+
+    // SPELL CARD
+    function getSpellImages(spell) {
+      function p(s) { return "Carte pouvoir_" + s + ".png"; }
+      return { front: p(spell + "_no use"), back: p(spell) };
+    }
+
+    function openSpellCard() {
+      const entity = selectedMonster || selectedHero;
+      if (!entity || entity.spellUsed) return;
+      if (entity === selectedMonster && entity.level < 2) return;
+      const overlay = $("spellOverlay");
+      const inner = $("spellCardInner");
+      const card = $("spellCard");
+      const ft = $("spellFrontText"), bt = $("spellBackText");
+      if (typeof entity.spell === "object") {
+        $("spellCardFront").src = "dos-carte.png";
+        $("spellCardBack").src = "dos-carte.png";
+        const fmt = entity.spell.desc.split('<br>').map(e => e.replace(/^(.+?)\s*:\s*(.*)$/, '<div class="spell-name">$1</div><div class="spell-desc">$2</div>')).join('');
+        ft.innerHTML = fmt;
+        bt.innerHTML = fmt;
+        ft.classList.add("show");
+        bt.classList.add("show");
+      } else if (selectedMonster) {
+        ft.classList.remove("show");
+        bt.classList.remove("show");
+        $("spellCardFront").src = "dos-carte.png";
+        $("spellCardBack").src = "dos-carte.png";
+      } else {
+        ft.classList.remove("show");
+        bt.classList.remove("show");
+        const imgs = getSpellImages(entity.spell);
+        $("spellCardFront").src = imgs.front;
+        $("spellCardBack").src = imgs.back;
+      }
+      inner.classList.remove("flipped");
+      card.style.transition = "none";
+      card.style.transform = "";
+      overlay.classList.add("visible");
+    }
+
+    function markSpellUsed(entity) {
+      entity = entity || selectedMonster || selectedHero;
+      if (!entity) return;
+      entity.spellUsed = true;
+      const btn = $("spellBtn");
+      btn.textContent = "POUVOIR";
+      btn.style.textDecoration = "line-through";
+      btn.classList.add("used");
+    }
+
+    function closeSpellCard(used, hero) {
+      const overlay = $("spellOverlay");
+      if (!overlay.classList.contains("visible")) return;
+      const card = $("spellCard");
+      const btn = $("spellBtn");
+      const br = btn.getBoundingClientRect();
+      const cr = card.getBoundingClientRect();
+      const dx = br.left + br.width / 2 - (cr.left + cr.width / 2);
+      const dy = br.top + br.height / 2 - (cr.top + cr.height / 2);
+      const sx = br.width / cr.width;
+      const sy = br.height / cr.height;
+      card.style.transition = "transform .3s ease-in";
+      card.style.transform = `translate(${dx}px,${dy}px) scale(${sx},${sy})`;
+      setTimeout(() => {
+        overlay.classList.remove("visible");
+        card.style.transition = "";
+        card.style.transform = "";
+        if (used) markSpellUsed(hero);
+      }, 300);
+    }
+
+    $("spellBtn").addEventListener("click", () => {
+      const entity = selectedMonster || selectedHero;
+      if (!entity || entity.spellUsed) return;
+      if (entity === selectedMonster && entity.level < 2) return;
+      const overlay = $("spellOverlay");
+      if (overlay.classList.contains("visible")) {
+        overlay.classList.remove("visible");
+        return;
+      }
+      openSpellCard();
+    });
+
+    $("spellCard").addEventListener("click", async () => {
+      const entity = selectedMonster || selectedHero;
+      if (!entity) return;
+      const inner = $("spellCardInner");
+      if (inner.classList.contains("flipped")) return;
+      inner.classList.add("flipped");
+      await new Promise(r => setTimeout(r, 650));
+      closeSpellCard(true, entity);
+    });
+
+    // SWIPE & MOUSE DRAG
+    (function () {
+      const el = $("carousel");
+      let startX = 0, startY = 0, down = false;
+      function onDown(e) {
+        startX = e.clientX ?? e.touches[0].clientX;
+        startY = e.clientY ?? e.touches[0].clientY;
+        down = true;
+      }
+      function onUp(e) {
+        if (!down) return;
+        down = false;
+        if (selectedMonster) return;
+        const cx = e.clientX ?? e.changedTouches[0].clientX;
+        const cy = e.clientY ?? e.changedTouches[0].clientY;
+        const dx = cx - startX;
+        const dy = cy - startY;
+        if (Math.abs(dx) > 40 && (!startY || Math.abs(dx) > Math.abs(dy) * 1.5)) {
+          navigateHero(dx < 0 ? 1 : -1);
+        }
+      }
+      el.addEventListener("mousedown", onDown);
+      el.addEventListener("mouseup", onUp);
+      el.addEventListener("mouseleave", () => { down = false; });
+      el.addEventListener("touchstart", onDown, { passive: true });
+      el.addEventListener("touchmove", e => {
+        if (down && Math.abs(e.touches[0].clientX - startX) > 10) e.preventDefault();
+      }, { passive: false });
+      el.addEventListener("touchend", onUp);
+    })();
+
+    // RENDER MONSTER LIST
+    function renderMonsterList() {
+      if (!selectedHero) return;
+      const filtered = monsters.filter(m => m.level === monsterLevel);
+      monsterGrid.innerHTML = `<div class="level-header"><button onclick="cycleMonsterLevel()">NIVEAU ${monsterLevel}</button></div>`;
+      filtered.forEach(m => {
+        const card = document.createElement("div");
+        card.className = "monster-card";
+        card.innerHTML = `<img src="${m.img}" alt="${m.name}" loading="lazy"><div class="name">${m.name}</div>`;
+        card.addEventListener("click", () => selectMonster(m));
+        monsterGrid.appendChild(card);
+      });
+    }
+
+    function cycleMonsterLevel() {
+      monsterLevel = monsterLevel >= 5 ? 1 : monsterLevel + 1;
       renderMonsterList();
-      showScreen("monster-list");
-      break;
-    case "MONSTER_DETAIL":
-      if (selectedMonster) {
-        showScreen("main");
-        renderMonsterDetail();
-      }
-      break;
-  }
-}
+    }
 
-// INIT - show home screen
-$("heroCountDisplay").textContent = numHeroes;
-updateNav();
-</script>
+    function selectMonster(monster) {
+      selectedMonster = monster;
+      showScreen("main");
+      renderMonsterDetail();
+      updateNav();
+    }
+
+    // RENDER MONSTER DETAIL
+    function renderMonsterDetail() {
+      const m = selectedMonster;
+      if (!m) return;
+      levelBtn.textContent = "NIVEAU " + m.level;
+      levelBtn.onclick = null;
+      $("spellOverlay").classList.remove("visible");
+      $("ctPrev").classList.remove("visible");
+      $("ctNext").classList.remove("visible");
+      $("carouselDots").innerHTML = "";
+      cs[0].innerHTML = `<img src="${m.img}" alt="${m.name}">`;
+      resetSlide(cs[0], true);
+      resetSlide(cs[1], false);
+      if (m.level >= 2 && m.spell) {
+        $("spellBtn").classList.add("visible");
+        $("spellBtn").textContent = "POUVOIR";
+        $("spellBtn").style.textDecoration = m.spellUsed ? "line-through" : "";
+        $("spellBtn").classList.toggle("used", m.spellUsed);
+      } else {
+        $("spellBtn").classList.remove("visible");
+      }
+      renderStats([
+        { label: "PV", value: m.curHp, modifiable: true, minusOnly: true, onChange: monsterHpOnChange(m) },
+        { label: "CA", value: m.curCa, modifiable: true, onChange: (d, el) => { m.curCa += d; el.textContent = m.curCa; triggerCounter(d); } },
+        { label: "FOR", value: m.curStr, modifiable: true, onChange: (d, el) => { m.curStr += d; el.textContent = m.curStr; triggerCounter(d); } }
+      ]);
+    }
+
+    // RENDER STATS
+    function spacer() { const d = document.createElement("div"); d.style.height = "32px"; return d; }
+
+    function renderStats(stats) {
+      statsRow.innerHTML = "";
+      stats.forEach(s => {
+        const div = document.createElement("div");
+        div.className = "stat";
+        div.innerHTML = `<div class="label">${s.label}</div>`;
+        const value = document.createElement("div");
+        value.className = "value";
+        value.textContent = s.value;
+        if (s.modifiable) {
+          if (!s.minusOnly) {
+            const plus = document.createElement("button");
+            plus.className = "stat-btn plus";
+            plus.textContent = "+";
+            setupLongPress(plus, () => s.onChange(1, value));
+            div.appendChild(plus);
+          } else {
+            div.appendChild(spacer());
+          }
+          div.appendChild(value);
+          const minus = document.createElement("button");
+          minus.className = "stat-btn minus";
+          minus.textContent = "\u2212";
+          setupLongPress(minus, () => s.onChange(-1, value));
+          div.appendChild(minus);
+        } else {
+          div.appendChild(spacer());
+          div.appendChild(value);
+          div.appendChild(spacer());
+        }
+        statsRow.appendChild(div);
+      });
+    }
+
+    // HOME SCREEN
+    const heroCountDisplay = $("heroCountDisplay");
+    $("heroPlus").addEventListener("click", () => {
+      if (numHeroes < 8) { numHeroes++; heroCountDisplay.textContent = numHeroes; }
+    });
+    $("heroMinus").addEventListener("click", () => {
+      if (numHeroes > 1) { numHeroes--; heroCountDisplay.textContent = numHeroes; }
+    });
+    $("startBtn").addEventListener("click", () => {
+      showScreen("hero-select");
+      renderHeroSelection();
+    });
+
+    // NAVIGATION
+    navBtns.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const screen = btn.dataset.screen;
+        currentScreen = screen;
+        switchScreen(screen);
+      });
+    });
+
+    function switchScreen(screen) {
+      switch (screen) {
+        case "HERO":
+          if (selectedHero) {
+            showScreen("main");
+            renderHeroDetail();
+          } else {
+            showScreen("hero-select");
+            renderHeroSelection();
+          }
+          break;
+        case "MONSTER_LIST":
+          renderMonsterList();
+          showScreen("monster-list");
+          break;
+        case "MONSTER_DETAIL":
+          if (selectedMonster) {
+            showScreen("main");
+            renderMonsterDetail();
+          }
+          break;
+      }
+    }
+
+    // INIT - show home screen
+    $("heroCountDisplay").textContent = numHeroes;
+    updateNav();
+  </script>
 </body>
+
 </html>
