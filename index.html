@@ -611,7 +611,10 @@
 
     .monster-grid .level-header {
       grid-column: 1/-1;
-      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
       padding: 10px 0
     }
 
@@ -622,7 +625,24 @@
       border-radius: 8px;
       padding: 8px 24px;
       font-size: clamp(18px, 5vw, 26px);
-      font-weight: 900
+      font-weight: 900;
+      cursor: pointer;
+      transition: opacity .2s
+    }
+
+    .monster-grid .level-header .level-arrow {
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      font-size: clamp(20px, 5vw, 28px);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center
+    }
+
+    .monster-grid .level-header button:active {
+      opacity: .7
     }
 
     .monster-card {
@@ -1346,7 +1366,12 @@
     function renderMonsterList() {
       if (!selectedHero) return;
       const filtered = monsters.filter(m => m.level === monsterLevel);
-      monsterGrid.innerHTML = `<div class="level-header"><button onclick="cycleMonsterLevel()">NIVEAU ${monsterLevel}</button></div>`;
+      monsterGrid.innerHTML = `
+        <div class="level-header">
+          <button class="level-arrow" onclick="monsterGridLevel(-1)">−</button>
+          <button>NIVEAU ${monsterLevel}</button>
+          <button class="level-arrow" onclick="monsterGridLevel(1)">+</button>
+        </div>`;
       filtered.forEach(m => {
         const card = document.createElement("div");
         card.className = "monster-card";
@@ -1356,8 +1381,10 @@
       });
     }
 
-    function cycleMonsterLevel() {
-      monsterLevel = monsterLevel >= 5 ? 1 : monsterLevel + 1;
+    function monsterGridLevel(dir) {
+      monsterLevel = monsterLevel + dir;
+      if (monsterLevel < 1) monsterLevel = 5;
+      if (monsterLevel > 5) monsterLevel = 1;
       renderMonsterList();
     }
 
