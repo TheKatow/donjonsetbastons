@@ -1394,12 +1394,10 @@
       renderStats(
         hero.curHp,
         (el) => {
-          let d = -1;
-          if (selectedMonster) d = -selectedMonster.str;
-          hero.curHp += d;
+          hero.curHp -= 1;
           if (hero.curHp < 0) hero.curHp = 0;
           el.textContent = hero.curHp;
-          triggerCounter(d);
+          triggerCounter(-1);
         },
         (el) => {
           hero.curHp += 1;
