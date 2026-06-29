@@ -510,65 +510,60 @@
       flex-shrink: 0
     }
 
-    .stats-row {
+    .hp-bar {
       display: flex;
-      justify-content: space-evenly;
-      align-items: flex-start
-    }
-
-    .stat {
-      display: flex;
-      flex-direction: column;
       align-items: center;
-      min-width: 60px
+      justify-content: center;
+      gap: 14px
     }
 
-    .stat .label {
-      font-size: 16px;
-      font-weight: 700;
-      color: #bdbdbd;
-      margin-bottom: 2px
-    }
-
-    .stat .value {
-      font-size: 26px;
-      font-weight: 900;
-      color: #fff
-    }
-
-    .stat-btn {
-      width: 32px;
-      height: 32px;
-      border: none;
+    .hp-btn {
+      width: 44px;
+      height: 44px;
+      border: 2px solid rgba(255,255,255,.3);
       border-radius: 50%;
-      font-size: 18px;
-      font-weight: 700;
+      font-size: 24px;
+      font-weight: 900;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: opacity .2s;
       background: transparent;
-      color: transparent;
+      color: #fff;
       padding: 0;
+      line-height: 1;
+      transition: opacity .15s
+    }
+
+    .hp-btn:active { opacity: .6 }
+
+    .hp-bubble {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      background: #e53935;
+      border: 3px solid #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      user-select: none
+    }
+
+    .hp-bubble .hp-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: rgba(255,255,255,.85);
+      text-transform: uppercase;
+      letter-spacing: 1px;
       line-height: 1
     }
 
-    .stat-btn.plus {
-      color: var(--green)
-    }
-
-    .stat-btn.minus {
-      color: var(--red)
-    }
-
-    .stat-btn:disabled {
-      opacity: 0;
-      pointer-events: none
-    }
-
-    .stat-btn:active {
-      opacity: .5
+    .hp-bubble .hp-value {
+      font-size: 32px;
+      font-weight: 900;
+      color: #fff;
+      line-height: 1.1
     }
 
     /* FLOATING COUNTER */
@@ -980,31 +975,6 @@
       $("spellCard").style.transform = "";
     }
 
-    const heroStats = [
-      { field: "curHp", label: "PV", mod: d => d < 0 && selectedMonster ? -selectedMonster.str : d },
-      { field: "curCa", label: "CA" },
-      { field: "curCha", label: "CHA" },
-      { field: "curStr", label: "FOR" }
-    ];
-
-    function makeStatHandler(field, hero, mod) {
-      return (d, el) => {
-        const dd = mod ? mod(d) : d;
-        hero[field] += dd;
-        el.textContent = hero[field];
-        triggerCounter(dd);
-      };
-    }
-
-    function renderHeroStats(hero) {
-      renderStats(heroStats.map(s => ({
-        label: s.label,
-        value: hero[s.field],
-        modifiable: true,
-        onChange: makeStatHandler(s.field, hero, s.mod)
-      })));
-    }
-
     function monsterDeathCleanup() {
       if (counterTimer) { clearTimeout(counterTimer); counterTimer = null; }
       floatingCounter.classList.remove("show");
@@ -1013,15 +983,6 @@
       showScreen("main");
       renderHeroDetail();
       updateNav();
-    }
-
-    function monsterHpOnChange(m) {
-      return (d, el) => {
-        m.curHp += d;
-        el.textContent = m.curHp;
-        if (m.curHp <= 0) { m.curHp = 0; el.textContent = 0; monsterDeathCleanup(); }
-        else { triggerCounter(d); }
-      };
     }
 
     // RENDER HERO SELECTION
@@ -1384,48 +1345,65 @@
       } else {
         $("spellBtn").classList.remove("visible");
       }
-      renderStats([
-        { label: "PV", value: m.curHp, modifiable: true, minusOnly: true, onChange: monsterHpOnChange(m) },
-        { label: "CA", value: m.curCa, modifiable: true, onChange: (d, el) => { m.curCa += d; el.textContent = m.curCa; triggerCounter(d); } },
-        { label: "FOR", value: m.curStr, modifiable: true, onChange: (d, el) => { m.curStr += d; el.textContent = m.curStr; triggerCounter(d); } }
-      ]);
+      renderStats(
+        m.curHp,
+        (el) => {
+          m.curHp -= 1;
+          el.textContent = m.curHp;
+          if (m.curHp <= 0) { m.curHp = 0; el.textContent = 0; monsterDeathCleanup(); }
+          else { triggerCounter(-1); }
+        },
+        (el) => {
+          m.curHp += 1;
+          el.textContent = m.curHp;
+          triggerCounter(1);
+        }
+      );
     }
 
     // RENDER STATS
-    function spacer() { const d = document.createElement("div"); d.style.height = "32px"; return d; }
-
-    function renderStats(stats) {
+    function renderStats(hpValue, onMinus, onPlus) {
       statsRow.innerHTML = "";
-      stats.forEach(s => {
-        const div = document.createElement("div");
-        div.className = "stat";
-        div.innerHTML = `<div class="label">${s.label}</div>`;
-        const value = document.createElement("div");
-        value.className = "value";
-        value.textContent = s.value;
-        if (s.modifiable) {
-          if (!s.minusOnly) {
-            const plus = document.createElement("button");
-            plus.className = "stat-btn plus";
-            plus.textContent = "+";
-            setupLongPress(plus, () => s.onChange(1, value));
-            div.appendChild(plus);
-          } else {
-            div.appendChild(spacer());
-          }
-          div.appendChild(value);
-          const minus = document.createElement("button");
-          minus.className = "stat-btn minus";
-          minus.textContent = "\u2212";
-          setupLongPress(minus, () => s.onChange(-1, value));
-          div.appendChild(minus);
-        } else {
-          div.appendChild(spacer());
-          div.appendChild(value);
-          div.appendChild(spacer());
+      const bar = document.createElement("div");
+      bar.className = "hp-bar";
+      const minus = document.createElement("button");
+      minus.className = "hp-btn";
+      minus.textContent = "\u2212";
+      bar.appendChild(minus);
+      const bubble = document.createElement("div");
+      bubble.className = "hp-bubble";
+      bubble.innerHTML = '<div class="hp-label">PV</div>';
+      const val = document.createElement("div");
+      val.className = "hp-value";
+      val.textContent = hpValue;
+      bubble.appendChild(val);
+      bar.appendChild(bubble);
+      const plus = document.createElement("button");
+      plus.className = "hp-btn";
+      plus.textContent = "+";
+      bar.appendChild(plus);
+      statsRow.appendChild(bar);
+      setupLongPress(minus, () => onMinus(val));
+      setupLongPress(plus, () => onPlus(val));
+    }
+
+    function renderHeroStats(hero) {
+      renderStats(
+        hero.curHp,
+        (el) => {
+          let d = -1;
+          if (selectedMonster) d = -selectedMonster.str;
+          hero.curHp += d;
+          if (hero.curHp < 0) hero.curHp = 0;
+          el.textContent = hero.curHp;
+          triggerCounter(d);
+        },
+        (el) => {
+          hero.curHp += 1;
+          el.textContent = hero.curHp;
+          triggerCounter(1);
         }
-        statsRow.appendChild(div);
-      });
+      );
     }
 
     // HOME SCREEN

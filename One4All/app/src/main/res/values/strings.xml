@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">One4All</string>
+    <string name="notification_channel_forwarded">Notifications centralis\u00e9es</string>
+    <string name="notification_channel_forwarded_desc">Notifications transf\u00e9r\u00e9es depuis les applications sources</string>
+</resources>
