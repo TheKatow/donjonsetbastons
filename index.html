@@ -233,7 +233,9 @@
     /* LEVEL BADGE */
     .level-badge {
       display: flex;
+      align-items: center;
       justify-content: center;
+      gap: 8px;
       padding: 10px 0
     }
 
@@ -247,6 +249,17 @@
       font-weight: 900;
       cursor: pointer;
       transition: opacity .2s
+    }
+
+    .level-badge .level-arrow {
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      font-size: clamp(20px, 5vw, 28px);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center
     }
 
     .level-badge button:active {
@@ -793,7 +806,9 @@
     <!-- MAIN APP -->
     <div class="screen" id="screen-main">
       <div class="level-badge">
+        <button class="level-arrow" id="levelMinus">−</button>
         <button id="levelBtn">NIVEAU 1</button>
+        <button class="level-arrow" id="levelPlus">+</button>
       </div>
       <div class="carousel" id="carousel">
         <div class="carousel-stage" id="carouselStage">
@@ -908,6 +923,8 @@
     const screenMonsterList = $("screen-monster-list");
     const statsRow = $("statsRow");
     const levelBtn = $("levelBtn");
+    const levelMinus = $("levelMinus");
+    const levelPlus = $("levelPlus");
     const floatingCounter = $("floatingCounter");
     const navBtns = document.querySelectorAll(".nav-btn");
 
@@ -1047,9 +1064,33 @@
       const h = selectedHero;
       if (!h) return;
       levelBtn.textContent = "NIVEAU " + h.level;
-      levelBtn.onclick = () => { heroLevelUp(h); renderHeroDetail(); };
+      levelBtn.onclick = null;
+      levelMinus.onclick = () => heroLevelDown(h);
+      levelPlus.onclick = () => { heroLevelUp(h); renderHeroDetail(); };
       renderCarousel();
       renderHeroStats(h);
+    }
+
+    function heroLevelDown(h) {
+      if (h.level > 1) {
+        h.level--;
+        h.curHp = h.hp + 3 * (h.level - 1);
+        h.curStr = h.str + (h.level - 1);
+        if (h.level < 4) { h.curCa = h.ca; h.curCha = h.cha; }
+        else if (h.level === 4) { h.curCa = h.ca + 1; h.curCha = h.cha + 1; }
+      } else {
+        h.level = 5;
+        h.curHp = h.hp + 12;
+        h.curStr = h.str + 4;
+        h.curCa = h.ca + 1;
+        h.curCha = h.cha + 1;
+      }
+      h.spellUsed = false;
+      closeSpellOverlay();
+      $("spellBtn").textContent = "POUVOIR";
+      $("spellBtn").style.textDecoration = "";
+      $("spellBtn").classList.remove("used");
+      renderHeroDetail();
     }
 
     function heroLevelUp(h) {
@@ -1141,7 +1182,9 @@
       setSpellBtn(newHero);
 
       levelBtn.textContent = "NIVEAU " + newHero.level;
-      levelBtn.onclick = () => { heroLevelUp(newHero); renderHeroDetail(); };
+      levelBtn.onclick = null;
+      levelMinus.onclick = () => heroLevelDown(newHero);
+      levelPlus.onclick = () => { heroLevelUp(newHero); renderHeroDetail(); };
       renderHeroStats(newHero);
       showCarouselUI(heroParty, newPrev, newNext);
       updateNav();
@@ -1331,6 +1374,8 @@
       if (!m) return;
       levelBtn.textContent = "NIVEAU " + m.level;
       levelBtn.onclick = null;
+      levelMinus.onclick = () => { m.level = m.level > 1 ? m.level - 1 : 5; renderMonsterDetail(); };
+      levelPlus.onclick = () => { m.level = m.level < 5 ? m.level + 1 : 1; renderMonsterDetail(); };
       $("spellOverlay").classList.remove("visible");
       $("ctPrev").classList.remove("visible");
       $("ctNext").classList.remove("visible");
