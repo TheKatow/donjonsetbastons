@@ -519,9 +519,17 @@
     /* STATS BAR */
     .stats-bar {
       background: rgba(0, 0, 0, .85);
-      padding: 12px 8px 16px;
+      padding: 8px;
       position: relative;
-      flex-shrink: 0
+      flex-shrink: 0;
+      height: 25vh
+    }
+
+    .stats-row {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center
     }
 
     .hp-bar {
@@ -529,14 +537,14 @@
       align-items: stretch;
       justify-content: center;
       gap: 14px;
-      height: 96px
+      height: 100%
     }
 
     .hp-btn {
-      width: 52px;
+      width: clamp(36px, 6vw, 52px);
       border: 2px solid rgba(255,255,255,.3);
       border-radius: 8px;
-      font-size: 24px;
+      font-size: clamp(16px, 3vw, 24px);
       font-weight: 900;
       cursor: pointer;
       display: flex;
@@ -564,7 +572,7 @@
     }
 
     .hp-bubble .hp-label {
-      font-size: 11px;
+      font-size: clamp(8px, 1.5vw, 14px);
       font-weight: 700;
       color: rgba(255,255,255,.85);
       text-transform: uppercase;
@@ -573,7 +581,7 @@
     }
 
     .hp-bubble .hp-value {
-      font-size: 32px;
+      font-size: clamp(18px, 5vw, 36px);
       font-weight: 900;
       color: #fff;
       line-height: 1.1
