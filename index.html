@@ -522,7 +522,7 @@
       padding: 8px;
       position: relative;
       flex-shrink: 0;
-      height: 25vh
+      height: 20vh
     }
 
     .stats-row {
@@ -1422,14 +1422,6 @@
       cs[0].innerHTML = `<img src="${m.img}" alt="${m.name}">`;
       resetSlide(cs[0], true);
       resetSlide(cs[1], false);
-      if (m.level >= 2 && m.spell) {
-        $("spellBtn").classList.add("visible");
-        $("spellBtn").textContent = "POUVOIR";
-        $("spellBtn").style.textDecoration = m.spellUsed ? "line-through" : "";
-        $("spellBtn").classList.toggle("used", m.spellUsed);
-      } else {
-        $("spellBtn").classList.remove("visible");
-      }
       renderStats(
         m.curHp,
         (el) => {
