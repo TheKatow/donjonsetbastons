@@ -1084,6 +1084,8 @@
       if (!h) return;
       levelBtn.textContent = "NIVEAU " + h.level;
       levelBtn.onclick = null;
+      levelMinus.style.display = "";
+      levelPlus.style.display = "";
       levelMinus.onclick = () => heroLevelDown(h);
       levelPlus.onclick = () => { heroLevelUp(h); renderHeroDetail(); };
       renderCarousel();
@@ -1202,6 +1204,8 @@
 
       levelBtn.textContent = "NIVEAU " + newHero.level;
       levelBtn.onclick = null;
+      levelMinus.style.display = "";
+      levelPlus.style.display = "";
       levelMinus.onclick = () => heroLevelDown(newHero);
       levelPlus.onclick = () => { heroLevelUp(newHero); renderHeroDetail(); };
       renderHeroStats(newHero);
@@ -1400,9 +1404,10 @@
       if (!m) return;
       levelBtn.textContent = "NIVEAU " + m.level;
       levelBtn.onclick = null;
-      levelMinus.onclick = () => { m.level = m.level > 1 ? m.level - 1 : 5; renderMonsterDetail(); };
-      levelPlus.onclick = () => { m.level = m.level < 5 ? m.level + 1 : 1; renderMonsterDetail(); };
+      levelMinus.style.display = "none";
+      levelPlus.style.display = "none";
       $("spellOverlay").classList.remove("visible");
+      $("spellBtn").classList.remove("visible");
       $("ctPrev").classList.remove("visible");
       $("ctNext").classList.remove("visible");
       $("carouselDots").innerHTML = "";
