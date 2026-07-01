@@ -304,6 +304,10 @@
       pointer-events: none
     }
 
+    .carousel-slide.slide-monster img {
+      transform: scale(1.05)
+    }
+
     .carousel-thumb {
       position: absolute;
       top: 50%;
@@ -674,7 +678,8 @@
       width: 100%;
       aspect-ratio: 1;
       object-fit: cover;
-      display: block
+      display: block;
+      transform: scale(1.05)
     }
 
     .monster-card .name {
@@ -1165,6 +1170,8 @@
       const prev = currentHeroIdx > 0 ? heroParty[currentHeroIdx - 1] : null;
       const next = currentHeroIdx < heroParty.length - 1 ? heroParty[currentHeroIdx + 1] : null;
 
+      cs[0].classList.remove("slide-monster");
+      cs[1].classList.remove("slide-monster");
       cs[0].innerHTML = `<img src="${curr.img}" alt="${curr.name}">`;
       resetSlide(cs[0], true);
       resetSlide(cs[1], false);
@@ -1398,6 +1405,8 @@
     function renderMonsterDetail() {
       const m = selectedMonster;
       if (!m) return;
+      cs[0].classList.add("slide-monster");
+      cs[1].classList.remove("slide-monster");
       levelBtn.textContent = "NIVEAU " + m.level;
       levelBtn.onclick = null;
       levelMinus.style.display = "none";
