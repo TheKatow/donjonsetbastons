@@ -499,6 +499,93 @@
       .spell-card-text { padding: 4px 12% }
     }
 
+    /* BONUS PV MODAL */
+    .bonus-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 30;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,.55)
+    }
+    .bonus-overlay.visible {
+      display: flex
+    }
+    .bonus-modal {
+      background: #1a1a1a;
+      border-radius: 16px;
+      padding: 28px 24px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      box-shadow: 0 8px 40px rgba(0,0,0,.5)
+    }
+    .bonus-bar {
+      display: flex;
+      align-items: stretch;
+      gap: 14px;
+      height: 90px
+    }
+    .bonus-btn {
+      width: clamp(40px, 8vw, 56px);
+      border: 2px solid #999;
+      border-radius: 8px;
+      font-size: clamp(20px, 4vw, 28px);
+      font-weight: 900;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      color: #fff;
+      padding: 0;
+      line-height: 1;
+      transition: opacity .15s
+    }
+    .bonus-btn:active { opacity: .6 }
+    .bonus-bubble {
+      aspect-ratio: 1;
+      height: 100%;
+      background: linear-gradient(to bottom, #e53935, #000);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+      border-radius: 8px;
+      min-width: 90px
+    }
+    .bonus-bubble .bonus-value {
+      font-size: clamp(32px, 10vh, 56px);
+      font-weight: 900;
+      color: #fff;
+      line-height: 1.1
+    }
+    .bonus-bubble .bonus-label {
+      font-size: clamp(11px, 2.5vh, 18px);
+      font-weight: 700;
+      color: rgba(255,255,255,.85);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      line-height: 1
+    }
+    .bonus-ok {
+      background: var(--green);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 48px;
+      font-size: clamp(16px, 3vw, 20px);
+      font-weight: 900;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      transition: opacity .15s
+    }
+    .bonus-ok:active { opacity: .6 }
+
     .carousel-indicator {
       position: absolute;
       bottom: 4px;
@@ -888,6 +975,21 @@
       </div>
     </div>
 
+    <!-- BONUS PV MODAL -->
+    <div class="bonus-overlay" id="bonusOverlay">
+      <div class="bonus-modal" id="bonusModal">
+        <div class="bonus-bar">
+          <button class="bonus-btn" id="bonusMinus">−</button>
+          <div class="bonus-bubble">
+            <div class="bonus-value" id="bonusValue">0</div>
+            <div class="bonus-label">PV MAX</div>
+          </div>
+          <button class="bonus-btn" id="bonusPlus">+</button>
+        </div>
+        <button class="bonus-ok" id="bonusOk">OK</button>
+      </div>
+    </div>
+
     <!-- MONSTER LIST -->
     <div class="screen" id="screen-monster-list">
       <div class="monster-grid" id="monsterGrid"></div>
@@ -1041,6 +1143,45 @@
       $("spellCard").style.transition = "";
       $("spellCard").style.transform = "";
     }
+
+    // BONUS PV MODAL
+    let bonusModalHero = null;
+
+    function openBonusModal(hero) {
+      bonusModalHero = hero;
+      $("bonusValue").textContent = hero.bonusHp || 0;
+      $("bonusOverlay").classList.add("visible");
+    }
+
+    function closeBonusModal() {
+      $("bonusOverlay").classList.remove("visible");
+      bonusModalHero = null;
+    }
+
+    $("bonusMinus").addEventListener("click", function() {
+      if (!bonusModalHero) return;
+      const v = Math.max(0, (bonusModalHero.bonusHp || 0) - 1);
+      bonusModalHero.bonusHp = v;
+      $("bonusValue").textContent = v;
+    });
+
+    $("bonusPlus").addEventListener("click", function() {
+      if (!bonusModalHero) return;
+      const v = (bonusModalHero.bonusHp || 0) + 1;
+      bonusModalHero.bonusHp = v;
+      $("bonusValue").textContent = v;
+    });
+
+    $("bonusOk").addEventListener("click", function() {
+      if (bonusModalHero) {
+        renderHeroStats(bonusModalHero);
+      }
+      closeBonusModal();
+    });
+
+    $("bonusOverlay").addEventListener("click", function(e) {
+      if (e.target === this) closeBonusModal();
+    });
 
     function monsterDeathCleanup() {
       if (counterTimer) { clearTimeout(counterTimer); counterTimer = null; }
@@ -1450,7 +1591,7 @@
     }
 
     // RENDER STATS
-    function renderStats(hpValue, onMinus, onPlus, maxHp) {
+    function renderStats(hpValue, onMinus, onPlus) {
       statsRow.innerHTML = "";
       const bar = document.createElement("div");
       bar.className = "hp-bar";
@@ -1462,7 +1603,7 @@
       bubble.className = "hp-bubble";
       const val = document.createElement("div");
       val.className = "hp-value";
-      val.textContent = maxHp != null ? hpValue + "/" + maxHp : hpValue;
+      val.textContent = hpValue;
       bubble.appendChild(val);
       const lbl = document.createElement("div");
       lbl.className = "hp-label";
@@ -1476,40 +1617,30 @@
       statsRow.appendChild(bar);
       setupLongPress(minus, () => onMinus(val));
       setupLongPress(plus, () => onPlus(val));
-      if (maxHp != null) {
-        bubble.style.cursor = "pointer";
-        bubble.addEventListener("click", function(e) {
-          e.stopPropagation();
-          const input = prompt("PV max bonus actuel : " + (selectedHero.bonusHp || 0) + "\nEntrez un nouveau bonus de PV max :", selectedHero.bonusHp || 0);
-          if (input !== null) {
-            const n = parseInt(input, 10);
-            if (!isNaN(n) && n >= 0) {
-              selectedHero.bonusHp = n;
-              renderHeroStats(selectedHero);
-            }
-          }
-        });
-      }
     }
 
     function renderHeroStats(hero) {
-      const maxHp = heroMaxHp(hero);
       renderStats(
         hero.curHp,
         (el) => {
           hero.curHp -= 1;
           if (hero.curHp < 0) hero.curHp = 0;
-          el.textContent = hero.curHp + "/" + maxHp;
+          el.textContent = hero.curHp;
           triggerCounter(-1);
         },
         (el) => {
           hero.curHp += 1;
+          const maxHp = heroMaxHp(hero);
           if (hero.curHp > maxHp) hero.curHp = maxHp;
-          el.textContent = hero.curHp + "/" + maxHp;
+          el.textContent = hero.curHp;
           triggerCounter(1);
-        },
-        maxHp
+        }
       );
+      statsRow.querySelector(".hp-value").style.cursor = "pointer";
+      statsRow.querySelector(".hp-value").addEventListener("click", function(e) {
+        e.stopPropagation();
+        openBonusModal(hero);
+      });
     }
 
     // HOME SCREEN
