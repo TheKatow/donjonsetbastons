@@ -795,6 +795,42 @@
       filter: drop-shadow(0 6px 20px rgba(0, 0, 0, .2))
     }
 
+    .home-role-btns {
+      display: flex;
+      gap: 16px;
+      width: 100%;
+      max-width: 420px
+    }
+    .home-role-btn {
+      flex: 1;
+      background: var(--green);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      padding: 14px 20px;
+      font-size: clamp(16px, 3.5vw, 20px);
+      font-weight: 900;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: opacity .2s;
+      box-shadow: 0 4px 16px rgba(76, 175, 80, .3)
+    }
+    .home-role-btn:active {
+      opacity: .7
+    }
+
+    .home-gm-section {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      width: 100%
+    }
+    .home-gm-section.visible {
+      display: flex
+    }
+
     .home-config {
       display: flex;
       flex-direction: column;
@@ -915,17 +951,23 @@
     <div class="screen active" id="screen-home">
       <div class="home-container">
         <img class="home-logo" src="logo.png" alt="Donjons &amp; Bastons">
-        <div class="home-config">
-          <div class="home-config-label">Nombre de héros</div>
-          <div class="home-config-row">
-            <button class="home-config-arrow" id="heroMinus">−</button>
-            <div class="home-config-value" id="heroCountDisplay">1</div>
-            <button class="home-config-arrow" id="heroPlus">+</button>
-          </div>
+        <div class="home-role-btns">
+          <button class="home-role-btn" id="heroStartBtn">Mon Héro</button>
+          <button class="home-role-btn" id="gmBtn">Maître du jeu</button>
         </div>
-        <button class="home-start-btn" id="startBtn">DÉMARRER</button>
+        <div class="home-gm-section" id="gmSection">
+          <div class="home-config">
+            <div class="home-config-label">Nombre de héros</div>
+            <div class="home-config-row">
+              <button class="home-config-arrow" id="heroMinus">−</button>
+              <div class="home-config-value" id="heroCountDisplay">1</div>
+              <button class="home-config-arrow" id="heroPlus">+</button>
+            </div>
+          </div>
+          <button class="home-start-btn" id="startBtn">DÉMARRER</button>
+        </div>
       </div>
-      <div class="home-version">v1.1.006</div>
+      <div class="home-version">v1.1.007</div>
     </div>
 
     <!-- HERO SELECTION -->
@@ -1676,6 +1718,14 @@
     $("startBtn").addEventListener("click", () => {
       showScreen("hero-select");
       renderHeroSelection();
+    });
+
+    $("heroStartBtn").addEventListener("click", () => {
+      showScreen("hero-select");
+      renderHeroSelection();
+    });
+    $("gmBtn").addEventListener("click", () => {
+      $("gmSection").classList.add("visible");
     });
 
     // NAVIGATION
