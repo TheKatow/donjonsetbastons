@@ -925,7 +925,7 @@
         </div>
         <button class="home-start-btn" id="startBtn">DÉMARRER</button>
       </div>
-      <div class="home-version">v1.1.001</div>
+      <div class="home-version">v1.1.002</div>
     </div>
 
     <!-- HERO SELECTION -->
@@ -1146,10 +1146,12 @@
 
     // BONUS PV MODAL
     let bonusModalHero = null;
+    let modalBonusValue = 0;
 
     function openBonusModal(hero) {
       bonusModalHero = hero;
-      $("bonusValue").textContent = hero.bonusHp || 0;
+      modalBonusValue = heroMaxHp(hero);
+      $("bonusValue").textContent = modalBonusValue;
       $("bonusOverlay").classList.add("visible");
     }
 
@@ -1160,20 +1162,20 @@
 
     $("bonusMinus").addEventListener("click", function() {
       if (!bonusModalHero) return;
-      const v = Math.max(0, (bonusModalHero.bonusHp || 0) - 1);
-      bonusModalHero.bonusHp = v;
-      $("bonusValue").textContent = v;
+      modalBonusValue = Math.max(0, modalBonusValue - 1);
+      $("bonusValue").textContent = modalBonusValue;
     });
 
     $("bonusPlus").addEventListener("click", function() {
       if (!bonusModalHero) return;
-      const v = (bonusModalHero.bonusHp || 0) + 1;
-      bonusModalHero.bonusHp = v;
-      $("bonusValue").textContent = v;
+      modalBonusValue += 1;
+      $("bonusValue").textContent = modalBonusValue;
     });
 
     $("bonusOk").addEventListener("click", function() {
       if (bonusModalHero) {
+        const base = bonusModalHero.hp + 3 * (bonusModalHero.level - 1);
+        bonusModalHero.bonusHp = Math.max(0, modalBonusValue - base);
         renderHeroStats(bonusModalHero);
       }
       closeBonusModal();
