@@ -925,7 +925,7 @@
         </div>
         <button class="home-start-btn" id="startBtn">DÉMARRER</button>
       </div>
-      <div class="home-version">v1.1.004</div>
+      <div class="home-version">v1.1.005</div>
     </div>
 
     <!-- HERO SELECTION -->
@@ -1112,11 +1112,13 @@
         if (e.type === "touchstart") e.preventDefault();
         action();
         timer = setTimeout(() => { interval = setInterval(action, 80); }, 350);
+        btn.dataset.lpInterval = "1";
       }
       function stop() {
         isPressed = false;
         if (timer) { clearTimeout(timer); timer = null; }
         if (interval) { clearInterval(interval); interval = null; }
+        delete btn.dataset.lpInterval;
       }
       btn.addEventListener("mousedown", start);
       btn.addEventListener("mouseup", stop);
@@ -1185,7 +1187,11 @@
       if (e.target === this) closeBonusModal();
     });
 
+    let cleanupBusy = false;
+
     function monsterDeathCleanup() {
+      if (cleanupBusy) return;
+      cleanupBusy = true;
       if (counterTimer) { clearTimeout(counterTimer); counterTimer = null; }
       floatingCounter.classList.remove("show");
       accumulatedDelta = 0;
@@ -1193,6 +1199,7 @@
       setTimeout(function() {
         showScreen("main");
         renderHeroDetail();
+        cleanupBusy = false;
       }, 50);
     }
 
@@ -1596,7 +1603,16 @@
     }
 
     // RENDER STATS
+    function clearLongPresses() {
+      statsRow.querySelectorAll("[data-lp-interval]").forEach(function(btn) {
+        btn.dispatchEvent(new Event("touchend"));
+        btn.dispatchEvent(new Event("mouseup"));
+        btn.dispatchEvent(new Event("mouseleave"));
+      });
+    }
+
     function renderStats(hpValue, onMinus, onPlus) {
+      clearLongPresses();
       statsRow.innerHTML = "";
       const bar = document.createElement("div");
       bar.className = "hp-bar";
