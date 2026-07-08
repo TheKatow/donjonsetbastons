@@ -781,6 +781,17 @@
       opacity: .8
     }
 
+    .home-version {
+      padding: 8px 0 12px;
+      text-align: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: #000;
+      opacity: .45;
+      flex-shrink: 0;
+      font-family: 'Courier New', monospace;
+    }
+
     @media(min-width:600px) {
       .hero-grid {
         grid-template-columns: repeat(4, 1fr);
@@ -827,6 +838,7 @@
         </div>
         <button class="home-start-btn" id="startBtn">DÉMARRER</button>
       </div>
+      <div class="home-version">v1.1.001</div>
     </div>
 
     <!-- HERO SELECTION -->
@@ -938,7 +950,7 @@
     ];
 
     // STATE
-    let heroes = heroData.map(h => ({ ...h, curHp: h.hp, curCa: h.ca, curCha: h.cha, curStr: h.str, level: 1, spellUsed: false }));
+    let heroes = heroData.map(h => ({ ...h, curHp: h.hp, curCa: h.ca, curCha: h.cha, curStr: h.str, level: 1, spellUsed: false, bonusHp: 0 }));
     let monsters = monsterData.map(m => ({ ...m, curHp: m.hp, curCa: m.ca, curStr: m.str, spellUsed: false }));
     let selectedHero = null;
     let selectedMonster = null;
@@ -1034,10 +1046,8 @@
       if (counterTimer) { clearTimeout(counterTimer); counterTimer = null; }
       floatingCounter.classList.remove("show");
       accumulatedDelta = 0;
-      selectedMonster = null;
       showScreen("main");
       renderHeroDetail();
-      updateNav();
     }
 
     // RENDER HERO SELECTION
@@ -1110,16 +1120,20 @@
       renderHeroStats(h);
     }
 
+    function heroMaxHp(h) {
+      return h.hp + 3 * (h.level - 1) + h.bonusHp;
+    }
+
     function heroLevelDown(h) {
       if (h.level > 1) {
         h.level--;
-        h.curHp = h.hp + 3 * (h.level - 1);
+        h.curHp = heroMaxHp(h);
         h.curStr = h.str + (h.level - 1);
         if (h.level < 4) { h.curCa = h.ca; h.curCha = h.cha; }
         else if (h.level === 4) { h.curCa = h.ca + 1; h.curCha = h.cha + 1; }
       } else {
         h.level = 5;
-        h.curHp = h.hp + 12;
+        h.curHp = heroMaxHp(h);
         h.curStr = h.str + 4;
         h.curCa = h.ca + 1;
         h.curCha = h.cha + 1;
@@ -1135,12 +1149,12 @@
     function heroLevelUp(h) {
       if (h.level < 5) {
         h.level++;
-        h.curHp = h.hp + 3 * (h.level - 1);
+        h.curHp = heroMaxHp(h);
         h.curStr = h.str + (h.level - 1);
         if (h.level === 4) { h.curCa += 1; h.curCha += 1; }
       } else {
         h.level = 1;
-        h.curHp = h.hp;
+        h.curHp = heroMaxHp(h);
         h.curStr = h.str;
         h.curCa = h.ca;
         h.curCha = h.cha;
@@ -1436,7 +1450,7 @@
     }
 
     // RENDER STATS
-    function renderStats(hpValue, onMinus, onPlus) {
+    function renderStats(hpValue, onMinus, onPlus, maxHp) {
       statsRow.innerHTML = "";
       const bar = document.createElement("div");
       bar.className = "hp-bar";
@@ -1448,7 +1462,7 @@
       bubble.className = "hp-bubble";
       const val = document.createElement("div");
       val.className = "hp-value";
-      val.textContent = hpValue;
+      val.textContent = maxHp != null ? hpValue + "/" + maxHp : hpValue;
       bubble.appendChild(val);
       const lbl = document.createElement("div");
       lbl.className = "hp-label";
@@ -1462,22 +1476,39 @@
       statsRow.appendChild(bar);
       setupLongPress(minus, () => onMinus(val));
       setupLongPress(plus, () => onPlus(val));
+      if (maxHp != null) {
+        bubble.style.cursor = "pointer";
+        bubble.addEventListener("click", function(e) {
+          e.stopPropagation();
+          const input = prompt("PV max bonus actuel : " + (selectedHero.bonusHp || 0) + "\nEntrez un nouveau bonus de PV max :", selectedHero.bonusHp || 0);
+          if (input !== null) {
+            const n = parseInt(input, 10);
+            if (!isNaN(n) && n >= 0) {
+              selectedHero.bonusHp = n;
+              renderHeroStats(selectedHero);
+            }
+          }
+        });
+      }
     }
 
     function renderHeroStats(hero) {
+      const maxHp = heroMaxHp(hero);
       renderStats(
         hero.curHp,
         (el) => {
           hero.curHp -= 1;
           if (hero.curHp < 0) hero.curHp = 0;
-          el.textContent = hero.curHp;
+          el.textContent = hero.curHp + "/" + maxHp;
           triggerCounter(-1);
         },
         (el) => {
           hero.curHp += 1;
-          el.textContent = hero.curHp;
+          if (hero.curHp > maxHp) hero.curHp = maxHp;
+          el.textContent = hero.curHp + "/" + maxHp;
           triggerCounter(1);
-        }
+        },
+        maxHp
       );
     }
 
