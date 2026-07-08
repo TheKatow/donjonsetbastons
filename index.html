@@ -925,7 +925,7 @@
         </div>
         <button class="home-start-btn" id="startBtn">DÉMARRER</button>
       </div>
-      <div class="home-version">v1.1.005</div>
+      <div class="home-version">v1.1.006</div>
     </div>
 
     <!-- HERO SELECTION -->
@@ -1195,7 +1195,8 @@
       if (counterTimer) { clearTimeout(counterTimer); counterTimer = null; }
       floatingCounter.classList.remove("show");
       accumulatedDelta = 0;
-      if (selectedMonster) selectedMonster.curHp = selectedMonster.hp;
+      selectedMonster = null;
+      updateNav();
       setTimeout(function() {
         showScreen("main");
         renderHeroDetail();
